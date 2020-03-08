@@ -61,14 +61,14 @@ private:
 
 	FTimerHandle FadeTimerHandle;
 	
-	typedef struct Moving_Control_Variable
+	typedef struct Movement_Control_Variable
 	{
-		float Moving_Accel;
+		float Movement_Accel;
 		Player_Direction Previous_State;
 		Player_Direction Current_State;
-	} Moving_Control_Variable;
+	} Movement_Control_Variable;
 	
-	Moving_Control_Variable X_Axis, Y_Axis, Z_Axis;
+	Movement_Control_Variable X_Axis, Y_Axis, Z_Axis;
 
 protected:
 	
@@ -88,18 +88,6 @@ public:
 	// Resets HMD orientation and position in VR
 	void OnResetVR();
 
-	void GrabActor_Left();
-	void ReleaseActor_Left();
-
-	void GrabActor_Right();
-	void ReleaseActor_Right();
-
-	void TeleportPressed_Left();
-	void TeleportReleased_Left();
-
-	void TeleportPressed_Right();
-	void TeleportReleased_Right();
-
 	// moving keyboard input
 	void DirectionUp(float NewAxisValue);
 	void DirectionDown(float NewAxisValue);
@@ -108,7 +96,7 @@ public:
 	void MotionControllerThumbRight_Y(float NewAxisValue);
 	void MotionControllerThumbRight_X(float NewAxisValue);
 
-	void MovingControl(Moving_Control_Variable* Axis, FVector DirectionVector, float AxisValue);
+	void MovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue);
 
 
 	UFUNCTION()

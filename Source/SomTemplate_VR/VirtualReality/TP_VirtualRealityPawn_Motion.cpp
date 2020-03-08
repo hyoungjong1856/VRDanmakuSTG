@@ -130,18 +130,6 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	// SomWorks :D // Bind Recenter VR events
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::OnResetVR);
 
-	// SomWorks :D // Bind Grab events
-	PlayerInputComponent->BindAction("GrabLeft", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::GrabActor_Left);
-	PlayerInputComponent->BindAction("GrabLeft", IE_Released, this, &ATP_VirtualRealityPawn_Motion::ReleaseActor_Left);
-	PlayerInputComponent->BindAction("GrabRight", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::GrabActor_Right);
-	PlayerInputComponent->BindAction("GrabRight", IE_Released, this, &ATP_VirtualRealityPawn_Motion::ReleaseActor_Right);
-
-	// SomWorks :D // Bind Teleport events
-	PlayerInputComponent->BindAction("TeleportLeft", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::TeleportPressed_Left);
-	PlayerInputComponent->BindAction("TeleportLeft", IE_Released, this, &ATP_VirtualRealityPawn_Motion::TeleportReleased_Left);
-	PlayerInputComponent->BindAction("TeleportRight", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::TeleportPressed_Right);
-	PlayerInputComponent->BindAction("TeleportRight", IE_Released, this, &ATP_VirtualRealityPawn_Motion::TeleportReleased_Right);
-
 	// SomWorks :D // Bind Input Axises
 	PlayerInputComponent->BindAxis(TEXT("DirectionUp"), this, &ATP_VirtualRealityPawn_Motion::DirectionUp);
 	PlayerInputComponent->BindAxis(TEXT("DirectionDown"), this, &ATP_VirtualRealityPawn_Motion::DirectionDown);
@@ -150,7 +138,7 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	PlayerInputComponent->BindAxis(TEXT("MotionControllerThumbRight_Y"), this, &ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_Y);
 	PlayerInputComponent->BindAxis(TEXT("MotionControllerThumbRight_X"), this, &ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X);
 
-	// moving keyboard input
+	// Movement keyboard input
 
 
 
@@ -161,54 +149,6 @@ void ATP_VirtualRealityPawn_Motion::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void ATP_VirtualRealityPawn_Motion::GrabActor_Left()
-{
-	LeftController->GrabActor();
-}
-
-void ATP_VirtualRealityPawn_Motion::ReleaseActor_Left()
-{
-	LeftController->ReleaseActor();
-}
-
-void ATP_VirtualRealityPawn_Motion::GrabActor_Right()
-{
-	RightController->GrabActor();
-}
-
-void ATP_VirtualRealityPawn_Motion::ReleaseActor_Right()
-{
-	RightController->ReleaseActor();
-}
-
-void ATP_VirtualRealityPawn_Motion::TeleportPressed_Left()
-{
-	LeftController->ActivateTeleporter();
-	RightController->DisableTeleporter();
-}
-
-void ATP_VirtualRealityPawn_Motion::TeleportReleased_Left()
-{
-	if (LeftController->GetIsTeleporterActive())
-	{
-		ExecuteTeleportation(LeftController);
-	}
-}
-
-void ATP_VirtualRealityPawn_Motion::TeleportPressed_Right()
-{
-	RightController->ActivateTeleporter();
-	LeftController->DisableTeleporter();
-}
-
-void ATP_VirtualRealityPawn_Motion::TeleportReleased_Right()
-{
-	if (RightController->GetIsTeleporterActive())
-	{
-		ExecuteTeleportation(RightController);
-	}
-}
-
 void ATP_VirtualRealityPawn_Motion::DirectionUp(float NewAxisValue)
 {
 	if (!(NewAxisValue == 0.0f))
@@ -217,15 +157,14 @@ void ATP_VirtualRealityPawn_Motion::DirectionUp(float NewAxisValue)
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::UP;
 		}
-		MovingControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
+		MovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
 
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Moving_Accel == 0.0f)) {
-		Z_Axis.Moving_Accel -= MOVING_BREAK_SPEED;
-		if (Z_Axis.Moving_Accel < 0)
-			Z_Axis.Moving_Accel = 0.0f;
-
-		RootScene->AddWorldOffset(GetActorForwardVector() * Z_Axis.Moving_Accel);
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Accel == 0.0f) && (Z_Axis.Current_State == Player_Direction::UP)) {
+		Z_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
+		if (Z_Axis.Movement_Accel < 0)
+			Z_Axis.Movement_Accel = 0.0f;
+		RootScene->AddWorldOffset(GetActorUpVector() * Z_Axis.Movement_Accel);
 	}
 }
 
@@ -237,15 +176,15 @@ void ATP_VirtualRealityPawn_Motion::DirectionDown(float NewAxisValue)
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::DOWN;
 		}
-		MovingControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
+		MovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
+	
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Accel == 0.0f) && (Z_Axis.Current_State == Player_Direction::DOWN)) {
+		Z_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
+		if (Z_Axis.Movement_Accel < 0)
+			Z_Axis.Movement_Accel = 0.0f;
 
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Moving_Accel == 0.0f)) {
-		Z_Axis.Moving_Accel -= MOVING_BREAK_SPEED;
-		if (Z_Axis.Moving_Accel < 0)
-			Z_Axis.Moving_Accel = 0.0f;
-
-		RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Z_Axis.Moving_Accel);
+		RootScene->AddWorldOffset(GetActorUpVector() * -1 * Z_Axis.Movement_Accel);
 	}
 }
 
@@ -262,18 +201,17 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisVal
 			Y_Axis.Previous_State = Y_Axis.Current_State;
 			Y_Axis.Current_State = Player_Direction::BACK;
 		}
-		MovingControl(&Y_Axis, GetActorForwardVector(), NewAxisValue);
+		MovementControl(&Y_Axis, GetActorForwardVector(), NewAxisValue);
 	}
-	if ((NewAxisValue == 0.0f) && !(Y_Axis.Moving_Accel == 0.0f)) {
-		Y_Axis.Moving_Accel -= MOVING_BREAK_SPEED;
-		if (Y_Axis.Moving_Accel < 0)
-			Y_Axis.Moving_Accel = 0.0f;
-		UE_LOG(LogTemp, Warning, TEXT("accel %f,"), Y_Axis.Moving_Accel);
+	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Accel == 0.0f)) {
+		Y_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
+		if (Y_Axis.Movement_Accel < 0)
+			Y_Axis.Movement_Accel = 0.0f;
 
 		if(Y_Axis.Current_State == Player_Direction::FORWARD)
-			RootScene->AddWorldOffset(GetActorForwardVector() * Y_Axis.Moving_Accel);
+			RootScene->AddWorldOffset(GetActorForwardVector() * Y_Axis.Movement_Accel);
 		else
-			RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Y_Axis.Moving_Accel);
+			RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Y_Axis.Movement_Accel);
 	}
 }
 
@@ -290,18 +228,17 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisVal
 			 X_Axis.Previous_State = X_Axis.Current_State;
 			 X_Axis.Current_State = Player_Direction::LEFT;
 		}
-		MovingControl(&X_Axis, GetActorRightVector(), NewAxisValue);
+		MovementControl(&X_Axis, GetActorRightVector(), NewAxisValue);
 	}
-	if ((NewAxisValue == 0.0f) && !(X_Axis.Moving_Accel == 0.0f)) {
-		X_Axis.Moving_Accel -= MOVING_BREAK_SPEED;
-		if (X_Axis.Moving_Accel < 0)
-			X_Axis.Moving_Accel = 0.0f;
-		UE_LOG(LogTemp, Warning, TEXT("accel %f,"), X_Axis.Moving_Accel);
+	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Accel == 0.0f)) {
+		X_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
+		if (X_Axis.Movement_Accel < 0)
+			X_Axis.Movement_Accel = 0.0f;
 
 		if (X_Axis.Current_State == Player_Direction::RIGHT)
-			RootScene->AddWorldOffset(GetActorRightVector() * X_Axis.Moving_Accel);
+			RootScene->AddWorldOffset(GetActorRightVector() * X_Axis.Movement_Accel);
 		else
-			RootScene->AddWorldOffset(GetActorRightVector() * -1 * X_Axis.Moving_Accel);
+			RootScene->AddWorldOffset(GetActorRightVector() * -1 * X_Axis.Movement_Accel);
 	}
 }
 
@@ -321,20 +258,20 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X(float NewAxisVa
 	}
 }
 
-void ATP_VirtualRealityPawn_Motion::MovingControl(Moving_Control_Variable* Axis, FVector DirectionVector, float AxisValue)
+void ATP_VirtualRealityPawn_Motion::MovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue)
 {
 	
 	if (Axis->Previous_State != Axis->Current_State) {
-		Axis->Moving_Accel = 0.0f;
+		Axis->Movement_Accel = 0.0f;
 	}	
 
 	UE_LOG(LogTemp, Warning, TEXT("previous %d,"), Z_Axis.Previous_State);
 	UE_LOG(LogTemp, Warning, TEXT("current %d,"), Z_Axis.Current_State);
-	UE_LOG(LogTemp, Warning, TEXT("accel %f,"), Axis->Moving_Accel);
-	Axis->Moving_Accel += MOVING_ACCEL_SPEED;
-	if (Axis->Moving_Accel > MOVING_MAX_SPEED)
-		Axis->Moving_Accel = MOVING_MAX_SPEED;
-	RootScene->AddWorldOffset(DirectionVector * AxisValue * Axis->Moving_Accel);
+	UE_LOG(LogTemp, Warning, TEXT("accel %f,"), Axis->Movement_Accel);
+	Axis->Movement_Accel += MOVEMENT_ACCELERATION_SPEED;
+	if (Axis->Movement_Accel > MOVEMENT_MAX_SPEED)
+		Axis->Movement_Accel = MOVEMENT_MAX_SPEED;
+	RootScene->AddWorldOffset(DirectionVector * AxisValue * Axis->Movement_Accel);
 }
 
 FRotator ATP_VirtualRealityPawn_Motion::GetRotationFromInput(float UpAxis, float RightAxis, ATP_MotionController* MotionController)
