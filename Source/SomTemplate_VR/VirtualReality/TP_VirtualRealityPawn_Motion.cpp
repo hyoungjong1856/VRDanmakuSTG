@@ -30,16 +30,13 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	CameraBase->SetupAttachment(RootComponent);
 	VRCamera->SetupAttachment(CameraBase);
 
-	FadeOutDuration = 0.1f;
-	FadeInDuration = 0.2f;
-	bIsTeleporting = false;
-	TeleportFadeColor = FColor::Black;
 	ThumbDeadzone = 0.7f;
 	bRightStickDown = false;
 	bLeftStickDown = false;
 	DefaultPlayerHeight = 180.0f;
 	bUseControllerRollToRotate = false;
 
+	// Member Variable (Movement_Speed, Player_Direction, Previous_State)
 	X_Axis = { 0.0f, Player_Direction::RIGHT, Player_Direction::RIGHT };
 	Y_Axis = { 0.0f, Player_Direction::FORWARD, Player_Direction::FORWARD };
 	Z_Axis = { 0.0f, Player_Direction::UP, Player_Direction::UP };
@@ -97,26 +94,6 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	/*
-	float MotionController_Left_Thumbstick_X = InputComponent->GetAxisValue(TEXT("MotionControllerThumbLeft_X")); // = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeyValue(EKeys::MotionController_Left_Thumbstick_X);
-	float MotionController_Left_Thumbstick_Y = InputComponent->GetAxisValue(TEXT("MotionControllerThumbLeft_Y")); // = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeyValue(EKeys::MotionController_Left_Thumbstick_Y);
-	float MotionController_Right_Thumbstick_X = InputComponent->GetAxisValue(TEXT("MotionControllerThumbRight_X")); // = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeyValue(EKeys::MotionController_Right_Thumbstick_X);
-	float MotionController_Right_Thumbstick_Y = InputComponent->GetAxisValue(TEXT("MotionControllerThumbRight_Y")); // = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerInput->GetKeyValue(EKeys::MotionController_Right_Thumbstick_Y);
-
-	// Epic Comment :D // Left Hand Teleport Rotation
-	if (LeftController->GetIsTeleporterActive())
-	{
-		FRotator LeftTeleportRotation = GetRotationFromInput(MotionController_Left_Thumbstick_Y, MotionController_Left_Thumbstick_X, LeftController);
-		LeftController->SetTeleportRotation(LeftTeleportRotation);
-	}
-
-	// Epic Comment :D // Right Hand Teleport Rotation
-	if (RightController->GetIsTeleporterActive())
-	{
-		FRotator RightTeleportRotation = GetRotationFromInput(MotionController_Right_Thumbstick_Y, MotionController_Right_Thumbstick_X, RightController);
-		RightController->SetTeleportRotation(RightTeleportRotation);
-	}
-	*/
 }
 
 // Called to bind functionality to input
@@ -149,47 +126,58 @@ void ATP_VirtualRealityPawn_Motion::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
+/**
+* @brief when have input player move accelerate, 
+*		 when have not input player move decelerate
+*
+* @param float NewAxisValue : input value
+*/
 void ATP_VirtualRealityPawn_Motion::DirectionUp(float NewAxisValue)
 {
+	// When have input
 	if (!(NewAxisValue == 0.0f))
 	{
 		if (NewAxisValue > 0.0f) {
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::UP;
 		}
-		MovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
+		AccelerationMovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
 
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Accel == 0.0f) && (Z_Axis.Current_State == Player_Direction::UP)) {
-		Z_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
-		if (Z_Axis.Movement_Accel < 0)
-			Z_Axis.Movement_Accel = 0.0f;
-		RootScene->AddWorldOffset(GetActorUpVector() * Z_Axis.Movement_Accel);
+	// When have not input
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::UP)) {
+		Z_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
+		if (Z_Axis.Movement_Speed < 0)
+			Z_Axis.Movement_Speed = 0.0f;
+		RootScene->AddWorldOffset(GetActorUpVector() * Z_Axis.Movement_Speed);
 	}
 }
 
 void ATP_VirtualRealityPawn_Motion::DirectionDown(float NewAxisValue)
 {
+	// When have input
 	if (!(NewAxisValue == 0.0f))
 	{
 		if (NewAxisValue < 0.0f) {
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::DOWN;
 		}
-		MovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
+		AccelerationMovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
 	
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Accel == 0.0f) && (Z_Axis.Current_State == Player_Direction::DOWN)) {
-		Z_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
-		if (Z_Axis.Movement_Accel < 0)
-			Z_Axis.Movement_Accel = 0.0f;
+	// When have not input
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::DOWN)) {
+		Z_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
+		if (Z_Axis.Movement_Speed < 0)
+			Z_Axis.Movement_Speed = 0.0f;
 
-		RootScene->AddWorldOffset(GetActorUpVector() * -1 * Z_Axis.Movement_Accel);
+		RootScene->AddWorldOffset(GetActorUpVector() * -1 * Z_Axis.Movement_Speed);
 	}
 }
 
 void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisValue)
 {
+	// When have input
 	if (!(NewAxisValue == 0.0f))
 	{
 		if (NewAxisValue > 0.0f) {
@@ -201,22 +189,25 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisVal
 			Y_Axis.Previous_State = Y_Axis.Current_State;
 			Y_Axis.Current_State = Player_Direction::BACK;
 		}
-		MovementControl(&Y_Axis, GetActorForwardVector(), NewAxisValue);
+		AccelerationMovementControl(&Y_Axis, GetActorForwardVector(), NewAxisValue);
 	}
-	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Accel == 0.0f)) {
-		Y_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
-		if (Y_Axis.Movement_Accel < 0)
-			Y_Axis.Movement_Accel = 0.0f;
+
+	// When have not input
+	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Speed == 0.0f)) {
+		Y_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
+		if (Y_Axis.Movement_Speed < 0)
+			Y_Axis.Movement_Speed = 0.0f;
 
 		if(Y_Axis.Current_State == Player_Direction::FORWARD)
-			RootScene->AddWorldOffset(GetActorForwardVector() * Y_Axis.Movement_Accel);
+			RootScene->AddWorldOffset(GetActorForwardVector() * Y_Axis.Movement_Speed);
 		else
-			RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Y_Axis.Movement_Accel);
+			RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Y_Axis.Movement_Speed);
 	}
 }
 
 void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisValue)
 {
+	// When have input
 	if (!(NewAxisValue == 0.0f))
 	{
 		if (NewAxisValue > 0.0f) {
@@ -228,17 +219,19 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisVal
 			 X_Axis.Previous_State = X_Axis.Current_State;
 			 X_Axis.Current_State = Player_Direction::LEFT;
 		}
-		MovementControl(&X_Axis, GetActorRightVector(), NewAxisValue);
+		AccelerationMovementControl(&X_Axis, GetActorRightVector(), NewAxisValue);
 	}
-	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Accel == 0.0f)) {
-		X_Axis.Movement_Accel -= MOVEMENT_DECELERATION_SPEED;
-		if (X_Axis.Movement_Accel < 0)
-			X_Axis.Movement_Accel = 0.0f;
+
+	// When have not input
+	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Speed == 0.0f)) {
+		X_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
+		if (X_Axis.Movement_Speed < 0)
+			X_Axis.Movement_Speed = 0.0f;
 
 		if (X_Axis.Current_State == Player_Direction::RIGHT)
-			RootScene->AddWorldOffset(GetActorRightVector() * X_Axis.Movement_Accel);
+			RootScene->AddWorldOffset(GetActorRightVector() * X_Axis.Movement_Speed);
 		else
-			RootScene->AddWorldOffset(GetActorRightVector() * -1 * X_Axis.Movement_Accel);
+			RootScene->AddWorldOffset(GetActorRightVector() * -1 * X_Axis.Movement_Speed);
 	}
 }
 
@@ -258,92 +251,24 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X(float NewAxisVa
 	}
 }
 
-void ATP_VirtualRealityPawn_Motion::MovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue)
+/**
+* @brief set player's accelerate movement
+*
+* @param Movement_Control_Variable* Axis	: axis direction
+*        FVector DirectionVector			: criteria direction
+*        float AxisValue					: input value
+*/
+void ATP_VirtualRealityPawn_Motion::AccelerationMovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue)
 {
 	
 	if (Axis->Previous_State != Axis->Current_State) {
-		Axis->Movement_Accel = 0.0f;
+		Axis->Movement_Speed = 0.0f;
 	}	
 
-	UE_LOG(LogTemp, Warning, TEXT("previous %d,"), Z_Axis.Previous_State);
-	UE_LOG(LogTemp, Warning, TEXT("current %d,"), Z_Axis.Current_State);
-	UE_LOG(LogTemp, Warning, TEXT("accel %f,"), Axis->Movement_Accel);
-	Axis->Movement_Accel += MOVEMENT_ACCELERATION_SPEED;
-	if (Axis->Movement_Accel > MOVEMENT_MAX_SPEED)
-		Axis->Movement_Accel = MOVEMENT_MAX_SPEED;
-	RootScene->AddWorldOffset(DirectionVector * AxisValue * Axis->Movement_Accel);
-}
+	//UE_LOG(LogTemp, Warning, TEXT("previous %d,"), Z_Axis.Previous_State);
 
-FRotator ATP_VirtualRealityPawn_Motion::GetRotationFromInput(float UpAxis, float RightAxis, ATP_MotionController* MotionController)
-{
-	// Epic Comment :D // Use PSVR method (lacking thumbstick) or the Desktop implementation with thumbstick support.
-	if (bUseControllerRollToRotate)
-	{
-		// Epic Comment :D // Get Roll difference since we initiated the teleport. (Allows Wrist to change the pawn orientation when teleporting)
-		FTransform InitialControllerTransform = FTransform(MotionController->GetInitialControllerRotation(), FVector(0.0f, 0.0f, 0.0f), FVector(1.0f, 1.0f, 1.0f));
-		FTransform ConvertTransformResult = UKismetMathLibrary::ConvertTransformToRelative(InitialControllerTransform, MotionController->GetMotionController()->GetComponentTransform());
-
-		// Epic Comment :D // Multiply to make 180 spins of orientation much easier.
-		float ConvertTransRotationRoll = ConvertTransformResult.Rotator().Roll * 3;
-
-		// Epic Commnet :D // Add current rotation to the controller adjustment
-		float ActorYaw = GetActorRotation().Yaw;
-
-		// Epic Comment :D // Roll of controller gets converted to Yaw for pawn orientation.
-		return FRotator(0.0f, ConvertTransRotationRoll + ActorYaw, 0.0f);
-	}
-	else
-	{
-		// Epic Comment :D // Rotate input X+Y to always point forward relative to the current pawn rotation.
-		FVector InputCenterNormal = UKismetMathLibrary::Normal(FVector(UpAxis, RightAxis, 0.0f));
-		FVector InputNormalRotateResult = FRotator(0.0f, GetActorRotation().Yaw, 0.0f).RotateVector(InputCenterNormal);
-		FRotator InputRotXResult = UKismetMathLibrary::MakeRotFromX(InputNormalRotateResult);
-
-		// Epic Comment :D // Check whether thumb is near center (to ignore rotation overrides)
-		// Epic Comment :D // ThumbDeadzone : Adjust this value to narrow the 'deadzone' center
-		bool bCheckThumbNearCenter = (UKismetMathLibrary::Abs(UpAxis) + UKismetMathLibrary::Abs(RightAxis)) >= ThumbDeadzone;
-
-		// Epic Comment :D // Select the rotation created by thumbpad input or use current pawn rotation
-		// Epic Comment :D // GetActorRotation() : Use Default rotation if thumb is near center of the pad
-		return UKismetMathLibrary::SelectRotator(InputRotXResult, GetActorRotation(), bCheckThumbNearCenter);
-	}
-}
-
-// Epic Comment :D // Handle Teleportation
-void ATP_VirtualRealityPawn_Motion::ExecuteTeleportation(ATP_MotionController* MotionController)
-{
-	if (!bIsTeleporting)
-	{
-		if (MotionController->GetIsValidTeleportDestination())
-		{
-			bIsTeleporting = true;
-			
-			UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(0.0f, 1.0f, FadeOutDuration, TeleportFadeColor, false, true);
-			FTimerDelegate FadeDelegate;// = FTimerDelegate::CreateUObject(this, &ATP_VirtualRealityPawn_Motion::TeleportActor, MotionController);
-			FadeDelegate.BindUFunction(this, FName("TeleportActor"), MotionController);
-			GetWorldTimerManager().SetTimer(FadeTimerHandle, FadeDelegate, FadeOutDuration, false);
-		}
-		else
-		{
-			MotionController->DisableTeleporter();
-		}
-	}
-}
-
-void ATP_VirtualRealityPawn_Motion::TeleportActor(ATP_MotionController* MotionController)
-{
-	MotionController->DisableTeleporter();
-
-	FVector DestLocation, DevicePosition;
-	FRotator DestRotation, DeviceRotation;
-	MotionController->GetTeleportDestination(DestLocation, DestRotation);
-
-	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
-
-	TeleportTo(DestLocation + 10, DestRotation);
-
-	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(1.0f, 0.0f, FadeInDuration, TeleportFadeColor, false, false);
-
-	bIsTeleporting = false;
-	GetWorldTimerManager().ClearTimer(FadeTimerHandle);
+	Axis->Movement_Speed += MOVEMENT_ACCELERATION_SPEED;
+	if (Axis->Movement_Speed > MOVEMENT_MAX_SPEED)
+		Axis->Movement_Speed = MOVEMENT_MAX_SPEED;
+	RootScene->AddWorldOffset(DirectionVector * AxisValue * Axis->Movement_Speed);
 }

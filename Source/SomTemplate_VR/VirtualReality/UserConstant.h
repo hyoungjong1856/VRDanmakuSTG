@@ -1,6 +1,6 @@
 #pragma once
 
-// Player Moving Constant
+// Player Movement Constant
 const float MOVEMENT_ACCELERATION_SPEED = 1.f;
 const float MOVEMENT_DECELERATION_SPEED = 1.5f;
 const float MOVEMENT_MAX_SPEED = 30.f;

@@ -33,18 +33,6 @@ private:
 	class ATP_MotionController* RightController;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
-	float FadeOutDuration;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
-	float FadeInDuration;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
-	bool bIsTeleporting;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
-	FLinearColor TeleportFadeColor;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
 	float ThumbDeadzone;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
@@ -58,12 +46,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
 	bool bUseControllerRollToRotate;
-
-	FTimerHandle FadeTimerHandle;
 	
 	typedef struct Movement_Control_Variable
 	{
-		float Movement_Accel;
+		float Movement_Speed;
 		Player_Direction Previous_State;
 		Player_Direction Current_State;
 	} Movement_Control_Variable;
@@ -88,7 +74,7 @@ public:
 	// Resets HMD orientation and position in VR
 	void OnResetVR();
 
-	// moving keyboard input
+	// Player movement function when have input
 	void DirectionUp(float NewAxisValue);
 	void DirectionDown(float NewAxisValue);
 	void MotionControllerThumbLeft_Y(float NewAxisValue);
@@ -96,16 +82,11 @@ public:
 	void MotionControllerThumbRight_Y(float NewAxisValue);
 	void MotionControllerThumbRight_X(float NewAxisValue);
 
-	void MovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue);
+	// Control player's acceleration movement
+	void AccelerationMovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue);
 
 
-	UFUNCTION()
-		FRotator GetRotationFromInput(float UpAxis, float RightAxis, class ATP_MotionController* MotionController);
-
-	UFUNCTION()
-		void ExecuteTeleportation(class ATP_MotionController* MotionController);
-
-	UFUNCTION()
-		void TeleportActor(class ATP_MotionController* MotionController);
+	//UFUNCTION()
+	//	FRotator GetRotationFromInput(float UpAxis, float RightAxis, class ATP_MotionController* MotionController);
 	
 };
