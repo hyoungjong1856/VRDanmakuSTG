@@ -84,6 +84,17 @@ public:
 
 	// Control player's acceleration movement
 	void AccelerationMovementControl(Movement_Control_Variable* Axis, FVector DirectionVector, float AxisValue);
+	
+	// Fire projectile
+	UFUNCTION()
+	void Fire();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GamePlay)
+	FVector MuzzleOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class AProjectile> ProjectileClass;
+
 
 
 	//UFUNCTION()

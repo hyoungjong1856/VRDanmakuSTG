@@ -14,5 +14,7 @@ class SOMTEMPLATE_VR_API ATP_VRGameModeBaseCPP : public AGameModeBase
 	
 	public:
 	ATP_VRGameModeBaseCPP();
+
+	virtual void StartPlay() override;
 	
 };

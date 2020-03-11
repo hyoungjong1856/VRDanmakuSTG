@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Bullet.generated.h"
+#include "Projectile.generated.h"
 
 UCLASS()
-class SOMTEMPLATE_VR_API ABullet : public AActor
+class SOMTEMPLATE_VR_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ABullet();
+	AProjectile();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,11 +23,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Components
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Body;
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	class USphereComponent* CollisionComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	int32 ID;
+	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	void FireInDirection(const FVector& ShootDirection);
 
 };

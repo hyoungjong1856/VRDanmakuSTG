@@ -14,6 +14,7 @@
 #include "Components/InputComponent.h"
 #include "Components/SceneComponent.h"
 #include "MotionControllerComponent.h"
+#include "Projectile.h"
 
 // Sets default values
 ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
@@ -40,6 +41,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	X_Axis = { 0.0f, Player_Direction::RIGHT, Player_Direction::RIGHT };
 	Y_Axis = { 0.0f, Player_Direction::FORWARD, Player_Direction::FORWARD };
 	Z_Axis = { 0.0f, Player_Direction::UP, Player_Direction::UP };
+
 }
 
 // Called when the game starts or when spawned
@@ -107,7 +109,7 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	// SomWorks :D // Bind Recenter VR events
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::OnResetVR);
 
-	// SomWorks :D // Bind Input Axises
+	// Player Movement Input Axises
 	PlayerInputComponent->BindAxis(TEXT("DirectionUp"), this, &ATP_VirtualRealityPawn_Motion::DirectionUp);
 	PlayerInputComponent->BindAxis(TEXT("DirectionDown"), this, &ATP_VirtualRealityPawn_Motion::DirectionDown);
 	PlayerInputComponent->BindAxis(TEXT("MotionControllerThumbLeft_Y"), this, &ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y);
@@ -115,7 +117,8 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	PlayerInputComponent->BindAxis(TEXT("MotionControllerThumbRight_Y"), this, &ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_Y);
 	PlayerInputComponent->BindAxis(TEXT("MotionControllerThumbRight_X"), this, &ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X);
 
-	// Movement keyboard input
+	// Fire Input
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Fire);
 
 
 
@@ -271,4 +274,35 @@ void ATP_VirtualRealityPawn_Motion::AccelerationMovementControl(Movement_Control
 	if (Axis->Movement_Speed > MOVEMENT_MAX_SPEED)
 		Axis->Movement_Speed = MOVEMENT_MAX_SPEED;
 	RootScene->AddWorldOffset(DirectionVector * AxisValue * Axis->Movement_Speed);
+}
+
+void ATP_VirtualRealityPawn_Motion::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("fire start"));
+	if (ProjectileClass)
+	{
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+		FRotator MuzzleRotation = CameraRotation;
+
+		MuzzleRotation.Pitch += 10.0f;
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = Instigator;
+			AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+			if (Projectile)
+			{
+				FVector LaunchDirection = MuzzleRotation.Vector();
+				Projectile->FireInDirection(LaunchDirection);
+			}
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("fire"));
+	}
 }
