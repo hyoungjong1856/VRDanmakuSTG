@@ -4,6 +4,8 @@
 #include "Projectile.h"
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "ConstructorHelpers.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -15,14 +17,26 @@ AProjectile::AProjectile()
 	CollisionComponent->InitSphereRadius(15.0f);
 	RootComponent = CollisionComponent;
 
+	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PROJECTILE_BODY"));
+	ProjectileMeshComponent->SetupAttachment(CollisionComponent);
+
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-	ProjectileMovementComponent->InitialSpeed = 3000.0f;
-	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+	ProjectileMovementComponent->InitialSpeed = 10000.0f;
+	ProjectileMovementComponent->MaxSpeed = 10000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bShouldBounce = true;
-	ProjectileMovementComponent->Bounciness = 0.3f;
 
+	// Set no gravity
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
+
+	if (PT_BODY.Succeeded())
+	{
+		ProjectileMeshComponent->SetStaticMesh(PT_BODY.Object);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -42,5 +56,13 @@ void AProjectile::Tick(float DeltaTime)
 void AProjectile::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
+}
+
+void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		Destroy();
+	}
 }
 

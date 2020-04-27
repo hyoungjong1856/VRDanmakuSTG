@@ -21,7 +21,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	UE_LOG(LogTemp, Warning, TEXT("player initialize"));
 	// SomWorks :D // Create Components Initialize
 	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	CameraBase = CreateDefaultSubobject<USceneComponent>(TEXT("VROrigin"));
@@ -48,7 +48,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 void ATP_VirtualRealityPawn_Motion::BeginPlay()
 {
 	Super::BeginPlay();
-
+	//UE_LOG(LogTemp, Warning, TEXT("플레이어게임시작"));
 	// Epic Comment :D // Setup Player Height for various Platforms (PS4, Vive, Oculus)
 	FName DeviceName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
 
@@ -246,11 +246,15 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X(float NewAxisVa
 {
 	if (!(NewAxisValue == 0.0f))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("rotation"));
 		FRotator Rootrotator;
 		Rootrotator.Add(0.0f, NewAxisValue, 0.0f);
 
-		RootScene->AddWorldRotation(Rootrotator * ROTATION_X_SPEED);
-		//UE_LOG(LogTemp, Warning, TEXT("ROTATOR %f,"), Rootrotator.Yaw);
+		UE_LOG(LogTemp, Warning, TEXT("ROTATOR %f, %f, %f,"), GetActorRotation().Pitch,  GetActorRotation().Yaw, GetActorRotation().Roll);
+
+		SetActorRotation(GetActorRotation() + (Rootrotator * ROTATION_X_SPEED));
+		// Same code
+		// RootScene->AddWorldRotation(Rootrotator * ROTATION_X_SPEED);
 	}
 }
 
@@ -278,17 +282,14 @@ void ATP_VirtualRealityPawn_Motion::AccelerationMovementControl(Movement_Control
 
 void ATP_VirtualRealityPawn_Motion::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("fire start"));
+	FActorSpawnParameters SpawnParams;
+
+	
 	if (ProjectileClass)
 	{
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+		FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(MuzzleOffset);
+		FRotator MuzzleRotation = GetActorRotation();
 
-		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
-		FRotator MuzzleRotation = CameraRotation;
-
-		MuzzleRotation.Pitch += 10.0f;
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -300,9 +301,15 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 			{
 				FVector LaunchDirection = MuzzleRotation.Vector();
 				Projectile->FireInDirection(LaunchDirection);
+				UE_LOG(LogTemp, Warning, TEXT("x:%f, y:%f, z:%f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z);
 			}
 		}
-
+		
 		UE_LOG(LogTemp, Warning, TEXT("fire"));
 	}
+}
+
+void ATP_VirtualRealityPawn_Motion::ShowText()
+{
+	UE_LOG(LogTemp, Warning, TEXT("showText"));
 }

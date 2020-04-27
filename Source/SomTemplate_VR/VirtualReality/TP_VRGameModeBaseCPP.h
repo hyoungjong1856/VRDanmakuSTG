@@ -7,6 +7,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "TP_VRGameModeBaseCPP.generated.h"
 
+class ATP_VirtualRealityPawn_Motion;
+
 UCLASS()
 class SOMTEMPLATE_VR_API ATP_VRGameModeBaseCPP : public AGameModeBase
 {
@@ -16,5 +18,10 @@ class SOMTEMPLATE_VR_API ATP_VRGameModeBaseCPP : public AGameModeBase
 	ATP_VRGameModeBaseCPP();
 
 	virtual void StartPlay() override;
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 	
+private:
+	//ATP_VirtualRealityPawn_Motion* VR_Player;
 };

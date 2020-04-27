@@ -89,12 +89,13 @@ public:
 	UFUNCTION()
 	void Fire();
 
+	void ShowText();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GamePlay)
 	FVector MuzzleOffset;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
-
 
 
 	//UFUNCTION()
