@@ -11,7 +11,7 @@
 AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->InitSphereRadius(15.0f);
@@ -53,6 +53,21 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
+USphereComponent* AProjectile::getCollisionComponent()
+{
+	return CollisionComponent;
+}
+
+UStaticMeshComponent* AProjectile::getProjectileMeshComponent()
+{
+	return ProjectileMeshComponent;
+}
+
+UProjectileMovementComponent* AProjectile::getProjectileMovementComponent()
+{
+	return ProjectileMovementComponent;
+}
+
 void AProjectile::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
@@ -63,6 +78,7 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Projectile Destroy"));
 	}
 }
 
