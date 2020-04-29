@@ -32,10 +32,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
-	USphereComponent* getCollisionComponent();
-	UStaticMeshComponent* getProjectileMeshComponent();
-	UProjectileMovementComponent* getProjectileMovementComponent();
-
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	int Damage;
 
