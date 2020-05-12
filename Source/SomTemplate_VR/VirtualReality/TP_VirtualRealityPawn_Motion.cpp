@@ -14,7 +14,7 @@
 #include "Components/InputComponent.h"
 #include "Components/SceneComponent.h"
 #include "MotionControllerComponent.h"
-#include "Projectile.h"
+#include "Player_Normal_Projectile.h"
 
 // Sets default values
 ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
@@ -119,7 +119,6 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 
 	// Fire Input
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Fire);
-
 
 
 }
@@ -305,7 +304,7 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 			}
 		}
 		
-		UE_LOG(LogTemp, Warning, TEXT("fire"));
+		UE_LOG(LogTemp, Warning, TEXT("Player Normal Projectile fire"));
 	}
 }
 

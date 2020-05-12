@@ -29,7 +29,7 @@ AProjectile::AProjectile()
 	// Set no gravity
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
-	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
+	//CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
 
@@ -53,6 +53,21 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
+USphereComponent* AProjectile::getCollisionComponent()
+{
+	return CollisionComponent;
+}
+
+UStaticMeshComponent* AProjectile::getProjectileMeshComponent()
+{
+	return ProjectileMeshComponent;
+}
+
+UProjectileMovementComponent* AProjectile::getProjectileMovementComponent()
+{
+	return ProjectileMovementComponent;
+}
+
 void AProjectile::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
@@ -63,6 +78,7 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Projectile Overlap"));
 	}
 }
 

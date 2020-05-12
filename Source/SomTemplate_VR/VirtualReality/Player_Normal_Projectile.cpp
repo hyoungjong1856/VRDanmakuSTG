@@ -13,15 +13,15 @@ APlayer_Normal_Projectile::APlayer_Normal_Projectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	UE_LOG(LogTemp, Warning, TEXT("Player Projectile spawn"));
-
-	Super::getCollisionComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayer_Normal_Projectile::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned
 void APlayer_Normal_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UE_LOG(LogTemp, Warning, TEXT("Player Projectile BeginPlay"));
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayer_Normal_Projectile::PNP_OnOverlapBegin);
+
 }
 
 // Called every frame
@@ -31,13 +31,15 @@ void APlayer_Normal_Projectile::Tick(float DeltaTime)
 
 }
 
-void APlayer_Normal_Projectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APlayer_Normal_Projectile::PNP_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player Projectile overlap start"));
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("Boss"))))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Projectile overlap"));
-		//Destroy();
+		UE_LOG(LogClass, Warning, TEXT("Overlap %s"), *OtherActor->GetName());
+		//C_Boss.setBossCurrentHp(C_Boss.getBossCurrentHp() - 5);
+		//UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), C_boss.getBossCurrentHp());
+		Destroy();
 		
 	}
 }
