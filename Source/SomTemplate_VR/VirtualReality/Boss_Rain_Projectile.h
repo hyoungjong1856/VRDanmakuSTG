@@ -5,19 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.h"
-#include "Boss_Normal_Projectile_1.generated.h"
+#include "Boss_Rain_Projectile.generated.h"
 
 UCLASS()
-class SOMTEMPLATE_VR_API ABoss_Normal_Projectile_1 : public AProjectile
+class SOMTEMPLATE_VR_API ABoss_Rain_Projectile : public AProjectile
 {
 	GENERATED_BODY()
-
-private:
-	float LifeTime;
 	
 public:	
 	// Sets default values for this actor's properties
-	ABoss_Normal_Projectile_1();
+	ABoss_Rain_Projectile();
 
 protected:
 	// Called when the game starts or when spawned

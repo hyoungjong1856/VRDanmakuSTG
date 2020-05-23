@@ -17,7 +17,18 @@ private:
 	FVector Offset;
 	
 	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
-	TSubclassOf<class AProjectile> ProjectileClass;
+	TSubclassOf<class AProjectile> Pattern_1_Projectile;
+
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_2_Rain_Projectile;
+
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_2_Projectile;
+
+	double Pattern_1_timer;
+	double Pattern_2_timer;
+	double Pattern_3_timer;
+	double Pattern_4_timer;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -51,6 +62,9 @@ public:
 	void SetBossCurrentHp(int hp);
 	
 	void Pattern_1();
+	void Pattern_2();
+	void Pattern_3();
+	void Pattern_4();
 
 	void Test();
 };

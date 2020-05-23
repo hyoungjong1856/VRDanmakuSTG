@@ -77,7 +77,7 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		Destroy();
+		//Destroy();
 		UE_LOG(LogTemp, Warning, TEXT("Projectile Overlap"));
 	}
 }

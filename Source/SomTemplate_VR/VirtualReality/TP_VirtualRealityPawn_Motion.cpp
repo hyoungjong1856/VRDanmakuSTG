@@ -37,6 +37,8 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	DefaultPlayerHeight = 180.0f;
 	bUseControllerRollToRotate = false;
 
+	RootComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 10000.0f));
+
 	// Member Variable (Movement_Speed, Player_Direction, Previous_State)
 	X_Axis = { 0.0f, Player_Direction::RIGHT, Player_Direction::RIGHT };
 	Y_Axis = { 0.0f, Player_Direction::FORWARD, Player_Direction::FORWARD };
