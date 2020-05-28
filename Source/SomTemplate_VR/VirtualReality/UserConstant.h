@@ -15,3 +15,11 @@ enum class Player_Direction
 	UP = 0,
 	DOWN = 1
 };
+
+
+// Boss Pattern Constant
+const int PATTERN_1_PROJECTILE_NUM = 8;
+const int PATTERN_2_RAIN_PROJECTILE_NUM = 30;
+const int PATTERN_2_WINDMILL_PROJECTILE_NUM = 6;
+const int PATTERN_2_WINDMILL_LAYER = 7;
+const float PATTERN_2_WINDMILL_FIRSTLAYER_HEIGHT = 3000.f;

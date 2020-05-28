@@ -29,6 +29,8 @@ private:
 	double Pattern_2_timer;
 	double Pattern_3_timer;
 	double Pattern_4_timer;
+
+	int Pattern_2_Windmill_Rotation;
 	
 public:	
 	// Sets default values for this actor's properties

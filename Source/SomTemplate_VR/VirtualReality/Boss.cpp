@@ -7,6 +7,7 @@
 #include "ConstructorHelpers.h"
 #include "Projectile.h"
 #include "Math/UnrealMathUtility.h"
+#include "UserConstant.h"
 
 // Sets default values
 ABoss::ABoss()
@@ -34,6 +35,8 @@ ABoss::ABoss()
 	Pattern_2_timer = 0.0;
 	Pattern_3_timer = 0.0;
 	Pattern_4_timer = 0.0;
+
+	Pattern_2_Windmill_Rotation = 10;
 
 	// Test Input
 	//InputComponent->BindAction("Test", IE_Pressed, this, &ABoss::Test);
@@ -101,31 +104,29 @@ void ABoss::Pattern_1()
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			AProjectile* Projectile[64];
+			AProjectile* Projectile[PATTERN_1_PROJECTILE_NUM * PATTERN_1_PROJECTILE_NUM];
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = Instigator;
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < PATTERN_1_PROJECTILE_NUM; i++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int j = 0; j < PATTERN_1_PROJECTILE_NUM; j++)
 				{
 					if (!(i == 0 && (j == 0 || j == 7)))
 					{
-						Projectile[i * 8 + j] = World->SpawnActor<AProjectile>(Pattern_1_Projectile, MuzzleLocation, GetActorRotation() + FRotator(45.0f * i, 45.0f * j, 0.0f), SpawnParams);
+						Projectile[i * 8 + j] = World->SpawnActor<AProjectile>(Pattern_1_Projectile, MuzzleLocation, GetActorRotation() + FRotator(45.0f * i, 360.0f / PATTERN_1_PROJECTILE_NUM * j, 0.0f), SpawnParams);
 						if (Projectile[i * 8 + j])
 						{
-							FVector LaunchDirection = Projectile[i * 8 + j]->GetActorRotation().Vector();
-							Projectile[i * 8 + j]->FireInDirection(LaunchDirection);
+							FVector LaunchDirection = Projectile[i * PATTERN_1_PROJECTILE_NUM + j]->GetActorRotation().Vector();
+							Projectile[i * PATTERN_1_PROJECTILE_NUM + j]->FireInDirection(LaunchDirection);
 						}
 					}
 				}
 			}
 			
 		} // if (World)
-
-		UE_LOG(LogTemp, Warning, TEXT("Boss Normal Projectile fire"));
-		UE_LOG(LogTemp, Warning, TEXT("rotator %f %f %f"), GetActorRotation().Yaw, GetActorRotation().Pitch, GetActorRotation().Roll);
 	}
+
 }
 
 void ABoss::Pattern_2()
@@ -133,6 +134,8 @@ void ABoss::Pattern_2()
 	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_2 start"));
 	FActorSpawnParameters SpawnParams;
 
+
+	// Rain Pattern
 	if (Pattern_2_Rain_Projectile)
 	{
 		//FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(Offset);
@@ -140,13 +143,13 @@ void ABoss::Pattern_2()
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			AProjectile* Rain_Projectile[10];
+			AProjectile* Rain_Projectile[PATTERN_2_RAIN_PROJECTILE_NUM];
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = Instigator;
 			
 
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < PATTERN_2_RAIN_PROJECTILE_NUM; i++)
 			{	
 				int Rain_x = FMath::RandRange(-20000, 20000);
 				int Rain_y = FMath::RandRange(-20000, 20000);
@@ -161,6 +164,46 @@ void ABoss::Pattern_2()
 		} // if (World)
 
 		UE_LOG(LogTemp, Warning, TEXT("Boss Rain Projectile fire"));
+	}
+
+
+	// Windmill Pattern
+	if (Pattern_2_Projectile)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_2 Windmill start"));
+		FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(Offset);
+
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			AProjectile* Projectile[PATTERN_2_WINDMILL_LAYER * PATTERN_2_WINDMILL_PROJECTILE_NUM];
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = Instigator;
+			for (int n = 0; n < PATTERN_2_WINDMILL_LAYER; n++)
+			{
+				for (int i = 0; i < PATTERN_2_WINDMILL_PROJECTILE_NUM; i++)
+				{
+					Projectile[i] = World->SpawnActor<AProjectile>
+						(Pattern_2_Projectile,
+							MuzzleLocation + FVector(0.0f, 0.0f, PATTERN_2_WINDMILL_FIRSTLAYER_HEIGHT - ((PATTERN_2_WINDMILL_FIRSTLAYER_HEIGHT / 3) * n)),
+							GetActorRotation() + FRotator(
+								0.0f,
+								360.0f / PATTERN_2_WINDMILL_PROJECTILE_NUM * i + Pattern_2_Windmill_Rotation,
+								0.0f),
+							SpawnParams);
+					if (Projectile[i])
+					{
+						FVector LaunchDirection = Projectile[i]->GetActorRotation().Vector();
+						Projectile[i]->FireInDirection(LaunchDirection);
+					}
+				}
+			}
+			
+
+		} // if (World)
+
+		Pattern_2_Windmill_Rotation += 10;
 	}
 }
 
