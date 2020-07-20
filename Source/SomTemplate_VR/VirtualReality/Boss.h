@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <list>
+#include <vector>
 #include "Boss.generated.h"
 
 UCLASS()
@@ -25,12 +27,31 @@ private:
 	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
 	TSubclassOf<class AProjectile> Pattern_2_Projectile;
 
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_3_Projectile;
+
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_4_First_Projectile;
+
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_4_Second_Projectile;
+
+	UPROPERTY(EditAnywhere, Category = Boss_Projectile)
+	TSubclassOf<class AProjectile> Pattern_4_Third_Projectile;
+
 	double Pattern_1_timer;
 	double Pattern_2_timer;
 	double Pattern_3_timer;
 	double Pattern_4_timer;
 
 	int Pattern_2_Windmill_Rotation;
+
+	int Pattern_4_Windmill_Rotation;
+
+
+	std::vector<AProjectile*> Pattern_4_First_Projectile_Vector;
+	std::vector<AProjectile*> Pattern_4_Second_Projectile_Vector;
+	std::vector<AProjectile*> Pattern_4_Third_Projectile_Vector;
 	
 public:	
 	// Sets default values for this actor's properties
