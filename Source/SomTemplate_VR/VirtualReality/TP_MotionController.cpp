@@ -206,7 +206,6 @@ ATP_MotionController::ATP_MotionController()
 	TeleportRotation = FRotator(0.0f, 0.0f, 0.0f);
 	TeleportLaunchVelocity = 900.0f;
 	InitialControllerRotation = FRotator(0.0f, 0.0f, 0.0f);
-	
 }
 
 void ATP_MotionController::OnConstruction(const FTransform & Transform)
@@ -300,7 +299,6 @@ void ATP_MotionController::Tick(float DeltaTime)
 
 		UpdateArcSpline(bIsValidTeleportDestination, TracePoints);
 		UpdateArcEndPoint(bIsValidTeleportDestination, TraceLocation);
-
 	}
 
 }

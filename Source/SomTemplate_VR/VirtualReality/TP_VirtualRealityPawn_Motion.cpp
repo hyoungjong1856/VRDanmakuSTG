@@ -1,9 +1,10 @@
-// Copyright (c) 2014-2019 Sombusta, All Rights Reserved.
+﻿// Copyright (c) 2014-2019 Sombusta, All Rights Reserved.
 // SomWorks :D // MIT LICENSE // Epic VR Template Convert C++ Open Source Project.
 
 #include "TP_VirtualRealityPawn_Motion.h"
 #include "TP_MotionController.h"
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -21,6 +22,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SetTickableWhenPaused(true);
 	UE_LOG(LogTemp, Warning, TEXT("player initialize"));
 	// SomWorks :D // Create Components Initialize
 	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
@@ -42,13 +44,16 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	Y_Axis = { 0.0f, Player_Direction::FORWARD, Player_Direction::FORWARD };
 	Z_Axis = { 0.0f, Player_Direction::UP, Player_Direction::UP };
 
+	Time_Update_counter = 0;
+
+	IsPause = false;
 }
 
 // Called when the game starts or when spawned
 void ATP_VirtualRealityPawn_Motion::BeginPlay()
 {
 	Super::BeginPlay();
-	//UE_LOG(LogTemp, Warning, TEXT("�÷��̾���ӽ���"));
+	//UE_LOG(LogTemp, Warning, TEXT("플레이어게임시작"));
 	// Epic Comment :D // Setup Player Height for various Platforms (PS4, Vive, Oculus)
 	FName DeviceName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
 
@@ -90,12 +95,26 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 		RightController->FinishSpawning(SpawnTransform);
 		RightController->AttachToComponent(CameraBase, AttachRules);
 	}
+
+	// 엑터 초기 위치 설정
+	SetActorLocation(FVector(-3000.0f, 0.0f, 10000.0f));
+
 }
 
 // Called every frame
 void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	if (Time_Update_counter == TIME_UPDATE_INTERVAL)
+	{
+		Time_Update_counter = 0;
+		UE_LOG(LogTemp, Warning, TEXT("벡터 VECTOR %f %f %f"), RightController->GetMotionController()->GetForwardVector().X, 
+			RightController->GetMotionController()->GetForwardVector().Y, 
+			RightController->GetMotionController()->GetForwardVector().Z);
+		//UE_LOG(LogTemp, Warning, TEXT("GetTime %.0f"), GetWorld()->GetTimeSeconds());
+	}
+	Time_Update_counter++;
 }
 
 // Called to bind functionality to input
@@ -119,6 +138,9 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 
 	// Fire Input
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Fire);
+
+	// Test Input
+	InputComponent->BindAction("Pause", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Pause).bExecuteWhenPaused = true;
 
 
 }
@@ -245,13 +267,9 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_X(float NewAxisVa
 {
 	if (!(NewAxisValue == 0.0f))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("rotation"));
-		FRotator Rootrotator;
-		Rootrotator.Add(0.0f, NewAxisValue, 0.0f);
+		//UE_LOG(LogTemp, Warning, TEXT("ROTATOR %f, %f, %f,   %f"), GetActorRotation().Pitch,  GetActorRotation().Yaw, GetActorRotation().Roll, NewAxisValue);
 
-		UE_LOG(LogTemp, Warning, TEXT("ROTATOR %f, %f, %f,"), GetActorRotation().Pitch,  GetActorRotation().Yaw, GetActorRotation().Roll);
-
-		SetActorRotation(GetActorRotation() + (Rootrotator * ROTATION_X_SPEED));
+		SetActorRotation(GetActorRotation() + (FRotator(0.0f, NewAxisValue, 0.0f) * ROTATION_X_SPEED));
 		// Same code
 		// RootScene->AddWorldRotation(Rootrotator * ROTATION_X_SPEED);
 	}
@@ -286,7 +304,7 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 	
 	if (ProjectileClass)
 	{
-		FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(MuzzleOffset);
+		FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(MuzzleOffset) + (-GetActorForwardVector() * 1500);
 		FRotator MuzzleRotation = GetActorRotation();
 
 		UWorld* World = GetWorld();
@@ -296,11 +314,17 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = Instigator;
 			AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+			//UE_LOG(LogTemp, Warning, TEXT("fire location x:%f, y:%f, z:%f"), MuzzleLocation.X, MuzzleLocation.Y, MuzzleLocation.Z);
+			//UE_LOG(LogTemp, Warning, TEXT("player location x:%f, y:%f, z:%f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+
 			if (Projectile)
 			{
-				FVector LaunchDirection = MuzzleRotation.Vector();
+				FVector LaunchDirection = RightController->GetMotionController()->GetForwardVector();
+				//FVector LaunchDirection = RightController->GetMotionController()->GetComponentRotation().Vector();
+
 				Projectile->FireInDirection(LaunchDirection);
-				UE_LOG(LogTemp, Warning, TEXT("x:%f, y:%f, z:%f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z);
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("%f %f %f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z));
+				UE_LOG(LogTemp, Warning, TEXT("vector x:%f, y:%f, z:%f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z);
 			}
 		}
 		
@@ -308,7 +332,28 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 	}
 }
 
-void ATP_VirtualRealityPawn_Motion::ShowText()
+void ATP_VirtualRealityPawn_Motion::Pause()
 {
-	UE_LOG(LogTemp, Warning, TEXT("showText"));
+	APlayerController* const MyPlayer = Cast<APlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
+	if (MyPlayer != NULL)
+	{
+		if (IsPause == false)
+		{
+			IsPause = true;
+			//MyPlayer->SetPause(IsPause);
+			UGameplayStatics::SetGamePaused(MyPlayer, IsPause);
+		}
+		
+		else
+		{
+			IsPause = false;
+			//MyPlayer->SetPause(IsPause);
+			UGameplayStatics::SetGamePaused(MyPlayer, IsPause);
+		}
+	}
 }
+
+void ATP_VirtualRealityPawn_Motion::Test()
+{
+}
+

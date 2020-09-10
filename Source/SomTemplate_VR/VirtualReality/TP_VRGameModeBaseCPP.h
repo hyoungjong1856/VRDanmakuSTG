@@ -13,8 +13,11 @@ UCLASS()
 class SOMTEMPLATE_VR_API ATP_VRGameModeBaseCPP : public AGameModeBase
 {
 	GENERATED_BODY()
+
+private:
+
 	
-	public:
+public:
 	ATP_VRGameModeBaseCPP();
 
 	virtual void StartPlay() override;
@@ -22,6 +25,4 @@ class SOMTEMPLATE_VR_API ATP_VRGameModeBaseCPP : public AGameModeBase
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-private:
-	//ATP_VirtualRealityPawn_Motion* VR_Player;
 };

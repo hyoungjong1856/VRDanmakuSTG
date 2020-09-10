@@ -11,6 +11,9 @@ UCLASS()
 class SOMTEMPLATE_VR_API ABoss_Normal_Projectile_1 : public AProjectile
 {
 	GENERATED_BODY()
+
+private:
+	float LifeTime;
 	
 public:	
 	// Sets default values for this actor's properties

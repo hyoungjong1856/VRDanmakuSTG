@@ -56,6 +56,10 @@ private:
 	
 	Movement_Control_Variable X_Axis, Y_Axis, Z_Axis;
 
+	bool IsPause;
+
+	int Time_Update_counter;
+
 protected:
 	
 public:
@@ -89,16 +93,14 @@ public:
 	UFUNCTION()
 	void Fire();
 
-	void ShowText();
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GamePlay)
 	FVector MuzzleOffset;
 
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
+	void Pause();
 
-	//UFUNCTION()
-	//	FRotator GetRotationFromInput(float UpAxis, float RightAxis, class ATP_MotionController* MotionController);
+	void Test();
 	
 };

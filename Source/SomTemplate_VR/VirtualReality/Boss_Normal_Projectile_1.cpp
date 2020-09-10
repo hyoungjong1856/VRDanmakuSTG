@@ -13,6 +13,10 @@ ABoss_Normal_Projectile_1::ABoss_Normal_Projectile_1()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ProjectileMovementComponent->InitialSpeed = 3000.0f;
+	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+
+	LifeTime = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +30,9 @@ void ABoss_Normal_Projectile_1::BeginPlay()
 void ABoss_Normal_Projectile_1::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	LifeTime += DeltaTime;
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), LifeTime);
+	if (LifeTime > 5)
+		Destroy();
 }
 

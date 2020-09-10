@@ -4,6 +4,7 @@
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -13,6 +14,8 @@ APlayer_Normal_Projectile::APlayer_Normal_Projectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	UE_LOG(LogTemp, Warning, TEXT("Player Projectile spawn"));
+
+	Damage = 20;
 }
 
 // Called when the game starts or when spawned
@@ -20,6 +23,7 @@ void APlayer_Normal_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("Player Projectile BeginPlay"));
+
 	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &APlayer_Normal_Projectile::PNP_OnOverlapBegin);
 
 }
@@ -31,16 +35,19 @@ void APlayer_Normal_Projectile::Tick(float DeltaTime)
 
 }
 
-void APlayer_Normal_Projectile::PNP_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APlayer_Normal_Projectile::PNP_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, 
+	const FHitResult& SweepResult)
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("Boss"))))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Projectile overlap"));
 		UE_LOG(LogClass, Warning, TEXT("Overlap %s"), *OtherActor->GetName());
-		//C_Boss.setBossCurrentHp(C_Boss.getBossCurrentHp() - 5);
-		//UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), C_boss.getBossCurrentHp());
+
+		Cast<ABoss>(OtherActor)->SetBossCurrentHp(Cast<ABoss>(OtherActor)->GetBossCurrentHp() - Damage);
+		UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHp());
+
 		Destroy();
 		
 	}
 }
-

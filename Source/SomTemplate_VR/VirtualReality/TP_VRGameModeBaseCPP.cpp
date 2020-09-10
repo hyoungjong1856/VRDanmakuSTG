@@ -43,5 +43,5 @@ void ATP_VRGameModeBaseCPP::StartPlay()
 
 void ATP_VRGameModeBaseCPP::Tick(float DeltaTime)
 {
-   // UE_LOG(LogTemp, Warning, TEXT("tick"));
+   //UE_LOG(LogTemp, Warning, TEXT("tick"));
 }
