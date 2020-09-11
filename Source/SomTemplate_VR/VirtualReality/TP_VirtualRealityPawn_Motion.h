@@ -58,7 +58,14 @@ private:
 
 	bool IsPause;
 
+	bool IsOutOfBoundary;
+
 	int Time_Update_counter;
+
+	FVector Position_When_Pressed;
+	FVector Position_When_Released;
+
+	bool WeaponMode;
 
 protected:
 	
@@ -99,7 +106,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
+	void Boundary_Check(float *AxisValue);
+
 	void Pause();
+
+	void Attack_Mode_Change_Press();
+	void Attack_Mode_Change_Release();
+
 
 	void Test();
 	

@@ -46,7 +46,12 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 
 	Time_Update_counter = 0;
 
+	IsOutOfBoundary = false;
 	IsPause = false;
+
+	Position_When_Pressed = Position_When_Released = FVector(0.0f, 0.0f, 0.0f);
+
+	WeaponMode = static_cast<bool>(Weapon_Mode::GUN);
 }
 
 // Called when the game starts or when spawned
@@ -86,6 +91,8 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 		LeftController->Hand = EControllerHand::Left;
 		LeftController->FinishSpawning(SpawnTransform); // UGameplayStatics::FinishSpawningActor(LeftController, SpawnTransform);
 		LeftController->AttachToComponent(CameraBase, AttachRules);
+		LeftController->Hide_Gun(true);
+		LeftController->Hide_Sword(true);
 	}
 
 	RightController = GetWorld()->SpawnActorDeferred<ATP_MotionController>(ATP_MotionController::StaticClass(), SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -94,6 +101,9 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 		RightController->Hand = EControllerHand::Right;
 		RightController->FinishSpawning(SpawnTransform);
 		RightController->AttachToComponent(CameraBase, AttachRules);
+		RightController->Hide_Gun(false);
+		RightController->Hide_Sword(true);
+
 	}
 
 	// 엑터 초기 위치 설정
@@ -109,9 +119,6 @@ void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 	if (Time_Update_counter == TIME_UPDATE_INTERVAL)
 	{
 		Time_Update_counter = 0;
-		UE_LOG(LogTemp, Warning, TEXT("벡터 VECTOR %f %f %f"), RightController->GetMotionController()->GetForwardVector().X, 
-			RightController->GetMotionController()->GetForwardVector().Y, 
-			RightController->GetMotionController()->GetForwardVector().Z);
 		//UE_LOG(LogTemp, Warning, TEXT("GetTime %.0f"), GetWorld()->GetTimeSeconds());
 	}
 	Time_Update_counter++;
@@ -142,6 +149,10 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	// Test Input
 	InputComponent->BindAction("Pause", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Pause).bExecuteWhenPaused = true;
 
+	// Attack Mode Change Input
+	InputComponent->BindAction("AttackModeChange", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Press);
+	InputComponent->BindAction("AttackModeChange", IE_Released, this, &ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Release);
+
 
 }
 
@@ -164,12 +175,13 @@ void ATP_VirtualRealityPawn_Motion::DirectionUp(float NewAxisValue)
 		if (NewAxisValue > 0.0f) {
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::UP;
+			Boundary_Check(&NewAxisValue);
 		}
 		AccelerationMovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
 
 	// When have not input
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::UP)) {
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::UP) && IsOutOfBoundary == false) {
 		Z_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (Z_Axis.Movement_Speed < 0)
 			Z_Axis.Movement_Speed = 0.0f;
@@ -185,12 +197,13 @@ void ATP_VirtualRealityPawn_Motion::DirectionDown(float NewAxisValue)
 		if (NewAxisValue < 0.0f) {
 			Z_Axis.Previous_State = Z_Axis.Current_State;
 			Z_Axis.Current_State = Player_Direction::DOWN;
+			Boundary_Check(&NewAxisValue);
 		}
 		AccelerationMovementControl(&Z_Axis, GetActorUpVector(), NewAxisValue);
 	}
 	
 	// When have not input
-	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::DOWN)) {
+	if ((NewAxisValue == 0.0f) && !(Z_Axis.Movement_Speed == 0.0f) && (Z_Axis.Current_State == Player_Direction::DOWN) && IsOutOfBoundary == false) {
 		Z_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (Z_Axis.Movement_Speed < 0)
 			Z_Axis.Movement_Speed = 0.0f;
@@ -207,17 +220,19 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisVal
 		if (NewAxisValue > 0.0f) {
 			Y_Axis.Previous_State = Y_Axis.Current_State;
 			Y_Axis.Current_State = Player_Direction::FORWARD;
+			Boundary_Check(&NewAxisValue);
 		}
 		else
 		{
 			Y_Axis.Previous_State = Y_Axis.Current_State;
 			Y_Axis.Current_State = Player_Direction::BACK;
+			Boundary_Check(&NewAxisValue);
 		}
 		AccelerationMovementControl(&Y_Axis, GetActorForwardVector(), NewAxisValue);
 	}
 
 	// When have not input
-	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Speed == 0.0f)) {
+	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Speed == 0.0f) && IsOutOfBoundary == false) {
 		Y_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (Y_Axis.Movement_Speed < 0)
 			Y_Axis.Movement_Speed = 0.0f;
@@ -237,17 +252,20 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisVal
 		if (NewAxisValue > 0.0f) {
 			X_Axis.Previous_State = X_Axis.Current_State;
 			X_Axis.Current_State = Player_Direction::RIGHT;
+			Boundary_Check(&NewAxisValue);
 		}
 		else
 		{
 			 X_Axis.Previous_State = X_Axis.Current_State;
 			 X_Axis.Current_State = Player_Direction::LEFT;
+			 Boundary_Check(&NewAxisValue);
 		}
 		AccelerationMovementControl(&X_Axis, GetActorRightVector(), NewAxisValue);
+
 	}
 
 	// When have not input
-	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Speed == 0.0f)) {
+	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Speed == 0.0f) && IsOutOfBoundary == false) {
 		X_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (X_Axis.Movement_Speed < 0)
 			X_Axis.Movement_Speed = 0.0f;
@@ -299,37 +317,53 @@ void ATP_VirtualRealityPawn_Motion::AccelerationMovementControl(Movement_Control
 
 void ATP_VirtualRealityPawn_Motion::Fire()
 {
-	FActorSpawnParameters SpawnParams;
-
-	
-	if (ProjectileClass)
+	if(WeaponMode == static_cast<bool>(Weapon_Mode::GUN))
 	{
-		FVector MuzzleLocation = GetActorLocation() + FTransform(GetActorRotation()).TransformVector(MuzzleOffset) + (-GetActorForwardVector() * 1500);
-		FRotator MuzzleRotation = GetActorRotation();
+		FActorSpawnParameters SpawnParams;
 
-		UWorld* World = GetWorld();
-		if (World)
+		if (ProjectileClass)
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = this;
-			SpawnParams.Instigator = Instigator;
-			AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-			//UE_LOG(LogTemp, Warning, TEXT("fire location x:%f, y:%f, z:%f"), MuzzleLocation.X, MuzzleLocation.Y, MuzzleLocation.Z);
-			//UE_LOG(LogTemp, Warning, TEXT("player location x:%f, y:%f, z:%f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+			FVector MuzzleLocation = RightController->GetMuzzleLocation();
+			FRotator MuzzleRotation = RightController->GetMotionController()->GetForwardVector().Rotation();
 
-			if (Projectile)
+			UWorld* World = GetWorld();
+			if (World)
 			{
-				FVector LaunchDirection = RightController->GetMotionController()->GetForwardVector();
-				//FVector LaunchDirection = RightController->GetMotionController()->GetComponentRotation().Vector();
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+				SpawnParams.Instigator = Instigator;
+				AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				//UE_LOG(LogTemp, Warning, TEXT("fire location x:%f, y:%f, z:%f"), MuzzleLocation.X, MuzzleLocation.Y, MuzzleLocation.Z);
+				//UE_LOG(LogTemp, Warning, TEXT("player location x:%f, y:%f, z:%f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 
-				Projectile->FireInDirection(LaunchDirection);
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("%f %f %f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z));
-				UE_LOG(LogTemp, Warning, TEXT("vector x:%f, y:%f, z:%f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z);
+				if (Projectile)
+				{
+					FVector LaunchDirection = RightController->GetMotionController()->GetForwardVector();
+					//FVector LaunchDirection = RightController->GetMotionController()->GetComponentRotation().Vector();
+
+					Projectile->FireInDirection(LaunchDirection);
+					//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("%f %f %f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z));
+				}
 			}
 		}
-		
-		UE_LOG(LogTemp, Warning, TEXT("Player Normal Projectile fire"));
 	}
+	
+}
+
+void ATP_VirtualRealityPawn_Motion::Boundary_Check(float *AxisValue)
+{
+	/*
+	if (GetActorLocation().X > FORWARD_BOUNDARY ||
+		GetActorLocation().X < BACK_BOUNDARY ||
+		GetActorLocation().Z > UP_BOUNDARY ||
+		GetActorLocation().Z < DOWN_BOUNDARY ||
+		GetActorLocation().Y > RIGHT_BOUNDARY ||
+		GetActorLocation().Y < LEFT_BOUNDARY)
+	{
+		*AxisValue = -*AxisValue * 30;
+		UE_LOG(LogTemp, Warning, TEXT("location x:%f, y:%f, z:%f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+		IsOutOfBoundary = true;
+	}*/
 }
 
 void ATP_VirtualRealityPawn_Motion::Pause()
@@ -351,6 +385,36 @@ void ATP_VirtualRealityPawn_Motion::Pause()
 			UGameplayStatics::SetGamePaused(MyPlayer, IsPause);
 		}
 	}
+}
+
+void ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Press()
+{
+	Position_When_Pressed = RightController->GetMuzzleLocation();
+	UE_LOG(LogTemp, Warning, TEXT("location x:%f, y:%f, z:%f"), Position_When_Pressed.X, Position_When_Pressed.Y, Position_When_Pressed.Z);
+
+}
+
+void ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Release()
+{
+	Position_When_Released = RightController->GetMuzzleLocation();
+	UE_LOG(LogTemp, Warning, TEXT("location x:%f, y:%f, z:%f"), Position_When_Released.X, Position_When_Released.Y, Position_When_Released.Z);
+
+	if (Position_When_Pressed.Z + 50.0f < Position_When_Released.Z)
+	{
+		RightController->Hide_Gun(true);
+		RightController->Hide_Sword(false);
+		WeaponMode = static_cast<bool>(Weapon_Mode::SWORD);
+	}
+
+	if (Position_When_Released.Z + 50.0f < Position_When_Pressed.Z)
+	{
+		RightController->Hide_Gun(false);
+		RightController->Hide_Sword(true);
+		WeaponMode = static_cast<bool>(Weapon_Mode::GUN);
+	}
+	FVector line = Position_When_Pressed - Position_When_Released;
+	float dot = line.Z;
+
 }
 
 void ATP_VirtualRealityPawn_Motion::Test()

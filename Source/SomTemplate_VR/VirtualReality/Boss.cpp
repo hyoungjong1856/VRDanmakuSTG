@@ -32,7 +32,8 @@ ABoss::ABoss()
 	{
 		Body->SetStaticMesh(BossBodyAsset.Object);
 		Body->SetRelativeLocation(Boss_Initial_Position);
-		Body->SetWorldScale3D(FVector(5.f));
+		Body->SetWorldRotation(FRotator(0.0f, 90.0f, 0.0f));
+		Body->SetWorldScale3D(FVector(10.f));
 	}
 
 	Boss_MaxHP = 10000;
@@ -87,7 +88,10 @@ void ABoss::Tick(float DeltaTime)
 	Pattern_Timer += DeltaTime;
 
 	if (Boss_CurrentHP <= 2000)
+	{
+		SetActorHiddenInGame(false);
 		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN4);
+	}
 	else if (Boss_CurrentHP <= 5000)
 		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN3);
 	else if (Boss_CurrentHP <= 8000)
@@ -136,6 +140,7 @@ void ABoss::Tick(float DeltaTime)
 		break;
 	}
 
+	//UE_LOG(LogTemp, Warning, TEXT("Boss Location: %f %f %f\n"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 
 }
 

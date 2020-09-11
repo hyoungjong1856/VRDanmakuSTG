@@ -30,9 +30,7 @@ void ABoss_Normal_Projectile_1::BeginPlay()
 void ABoss_Normal_Projectile_1::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	LifeTime += DeltaTime;
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), LifeTime);
-	if (LifeTime > 5)
-		Destroy();
+
+	Check_Destroy();
 }
 

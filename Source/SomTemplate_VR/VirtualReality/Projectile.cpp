@@ -68,6 +68,13 @@ UProjectileMovementComponent* AProjectile::getProjectileMovementComponent()
 	return ProjectileMovementComponent;
 }
 
+void AProjectile::Check_Destroy()
+{
+	LifeTime_Counter++;
+	if (LifeTime_Counter > 500)
+		Destroy();
+}
+
 void AProjectile::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
@@ -78,7 +85,7 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		//Destroy();
-		UE_LOG(LogTemp, Warning, TEXT("Projectile Overlap"));
+		//UE_LOG(LogTemp, Warning, TEXT("Projectile Overlap"));
 	}
 }
 

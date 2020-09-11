@@ -41,8 +41,11 @@ ATP_MotionController::ATP_MotionController()
 	
 	// SomWorks :D // Animation Blueprint // cast "UClass" and Asset path is Different Why? -> Because UAnimBlueprint Class will crash a packaged game. so use postfix "_C", animation blueprint cast to UClass.
 	static ConstructorHelpers::FObjectFinder<UClass> AnimBP_HandAnimation(TEXT("Class'/Game/VirtualReality/Mannequin/Animations/AnimBP_SomRightHand.AnimBP_SomRightHand_C'"));
-
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_Hand(TEXT("SkeletalMesh'/Game/VirtualReality/Mannequin/Character/Mesh/MannequinHand_Right.MannequinHand_Right'"));
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM_Gun(TEXT("SkeletalMesh'/Game/SciFiWeapDark/Weapons/Darkness_AssaultRifle.Darkness_AssaultRifle'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SM_Sword(TEXT("SkeletalMesh'/Game/SciFiWeapDark/Weapons/Darkness_Knife.Darkness_Knife'"));
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Sphere(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Cylinder(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_FatCylinder(TEXT("StaticMesh'/Game/VirtualReality/Meshes/SM_FatCylinder.SM_FatCylinder'"));
@@ -69,6 +72,10 @@ ATP_MotionController::ATP_MotionController()
 	RoomScaleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RoomScaleMesh"));
 	SteamVRChaperone = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("SteamVRChaperone"));
 
+	// Weapon
+	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
+	Sword = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Sword"));
+
 	// SomWorks :D // Setup RootComponent
 	RootComponent = RootScene;
 
@@ -91,6 +98,31 @@ ATP_MotionController::ATP_MotionController()
 			HandMesh->SetAnimInstanceClass(AnimBP_HandAnimation.Object);
 		}
 	}
+
+	// Weapon
+	Gun->SetupAttachment(HandMesh);
+	Gun->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	Gun->SetRelativeRotation(FRotator(-90.0f, -90.0f, 0.0f));
+	Gun->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+
+	if (SM_Gun.Succeeded())
+	{
+		Gun->SetSkeletalMesh(SM_Gun.Object);
+	}
+
+	Sword->SetupAttachment(HandMesh);
+	Sword->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	Sword->SetRelativeRotation(FRotator(-90.0f, -90.0f, 0.0f));
+	Sword->SetWorldScale3D(FVector(4.0f, 10.0f, 4.0f));
+	Sword->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+
+	if (SM_Sword.Succeeded())
+	{
+		Sword->SetSkeletalMesh(SM_Sword.Object);
+	}
+	
+
+	// Weapon //
 
 	ArcDirection->SetupAttachment(HandMesh);
 	ArcDirection->SetRelativeLocation(FVector(14.175764f, 0.859525f, -4.318897f));
@@ -682,4 +714,19 @@ void ATP_MotionController::UpdateHandAnimation()
 void ATP_MotionController::SetTeleportRotation(FRotator& NewTeleportRotation)
 {
 	TeleportRotation = NewTeleportRotation;
+}
+
+FVector ATP_MotionController::GetMuzzleLocation()
+{
+	return Gun->GetSocketLocation(TEXT("Muzzle"));
+}
+
+void ATP_MotionController::Hide_Gun(bool visibility)
+{
+	Gun->SetHiddenInGame(visibility);
+}
+
+void ATP_MotionController::Hide_Sword(bool visibility)
+{
+	Sword->SetHiddenInGame(visibility);
 }

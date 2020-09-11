@@ -3,10 +3,25 @@
 // System Constant
 const int TIME_UPDATE_INTERVAL = 30;
 
+enum class Weapon_Mode
+{
+	GUN = 0,
+	SWORD = 1
+};
+
+// Map Constant
+const int UP_BOUNDARY = 200000;
+const int DOWN_BOUNDARY = -100000;
+const int FORWARD_BOUNDARY = 100000;
+const int BACK_BOUNDARY = -100000;
+const int RIGHT_BOUNDARY = 100000;
+const int LEFT_BOUNDARY = -100000;
+
+
 // Player Movement Constant
-const float MOVEMENT_ACCELERATION_SPEED = 1.f;
-const float MOVEMENT_DECELERATION_SPEED = 1.5f;
-const float MOVEMENT_MAX_SPEED = 30.f;
+const float MOVEMENT_ACCELERATION_SPEED = 2.f;
+const float MOVEMENT_DECELERATION_SPEED = 3.f;
+const float MOVEMENT_MAX_SPEED = 60.f;
 const float ROTATION_X_SPEED = 1.0f;
 
 enum class Player_Direction
@@ -18,6 +33,9 @@ enum class Player_Direction
 	UP = 0,
 	DOWN = 1
 };
+
+// Player Projectile Constant
+const int PLAYER_PROJECTILE_LIFETIME = 120;
 
 
 // Boss Pattern Constant
@@ -51,7 +69,7 @@ const int PATTERN_2_MOVEMENT_TIME = 100;
 const int PATTERN_2_MOVEMENT_SPEED = 10;
 const int PATTERN_2_MOVEMENT_BREAKTIME = 700;
 
-const int PATTERN_3_MOVEMENT_SPEED = 20;
+const int PATTERN_3_MOVEMENT_SPEED = 40;
 const int PATTERN_3_MOVEMENT_BREAKTIME = 400;
 
 const int PATTERN_4_MOVEMENT_TIME = 100;

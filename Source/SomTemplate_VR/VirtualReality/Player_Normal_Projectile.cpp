@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
+#include "UserConstant.h"
 
 // Sets default values
 APlayer_Normal_Projectile::APlayer_Normal_Projectile()
@@ -13,9 +14,13 @@ APlayer_Normal_Projectile::APlayer_Normal_Projectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	UE_LOG(LogTemp, Warning, TEXT("Player Projectile spawn"));
+	ProjectileMeshComponent->SetRelativeScale3D(FVector(0.25f, 0.25f, 0.25f));
 
-	Damage = 20;
+	ProjectileMovementComponent->InitialSpeed = 20000.0f;
+	ProjectileMovementComponent->MaxSpeed = 20000.0f;
+
+	LifeTime_Counter = 0;
+	Damage = 200;
 }
 
 // Called when the game starts or when spawned
@@ -32,7 +37,15 @@ void APlayer_Normal_Projectile::BeginPlay()
 void APlayer_Normal_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	Check_Destroy();
+}
 
+void APlayer_Normal_Projectile::Check_Destroy()
+{
+	LifeTime_Counter++;
+	if (LifeTime_Counter > PLAYER_PROJECTILE_LIFETIME)
+		Destroy();
 }
 
 void APlayer_Normal_Projectile::PNP_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 

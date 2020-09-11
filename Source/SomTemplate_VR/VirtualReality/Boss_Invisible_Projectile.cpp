@@ -37,6 +37,7 @@ void ABoss_Invisible_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Check_Destroy();
 	
 	FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 

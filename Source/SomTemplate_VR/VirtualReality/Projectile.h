@@ -39,6 +39,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	int Damage;
 
+	int LifeTime_Counter;
+
+	virtual void Check_Destroy();
+
 	void FireInDirection(const FVector& ShootDirection);
 
 	// declare overlap begin function

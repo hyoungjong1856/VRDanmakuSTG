@@ -24,6 +24,7 @@ void ABoss_Rain_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Check_Destroy();
 }
 
 // Called every frame

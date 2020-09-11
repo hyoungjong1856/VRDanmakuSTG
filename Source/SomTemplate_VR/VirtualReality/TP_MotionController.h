@@ -21,7 +21,13 @@ class SOMTEMPLATE_VR_API ATP_MotionController : public AActor
 	class UMotionControllerComponent* MotionController;
 															  
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
-	class USkeletalMeshComponent* HandMesh;	  
+	class USkeletalMeshComponent* HandMesh;	 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* Gun;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* Sword;
 															  
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
 	class UArrowComponent* ArcDirection;				  
@@ -160,7 +166,12 @@ protected:
 public:		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRTemplate|Variables")
 	EControllerHand Hand;
-	
+
+	FVector GetMuzzleLocation();
+
+	void Hide_Gun(bool visibility);
+	void Hide_Sword(bool visibility);
+
 	FORCEINLINE class UMotionControllerComponent* GetMotionController() const { return MotionController; }
 	FORCEINLINE FRotator GetInitialControllerRotation() const { return InitialControllerRotation; }
 	FORCEINLINE bool GetIsValidTeleportDestination() const { return bIsValidTeleportDestination; }

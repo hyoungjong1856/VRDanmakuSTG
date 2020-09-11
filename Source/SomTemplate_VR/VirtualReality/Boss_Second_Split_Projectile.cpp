@@ -36,5 +36,6 @@ void ABoss_Second_Split_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Check_Destroy();
 }
 
