@@ -29,21 +29,23 @@ AProjectile::AProjectile()
 	// Set no gravity
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
-	//CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
-
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
 
 	if (PT_BODY.Succeeded())
 	{
 		ProjectileMeshComponent->SetStaticMesh(PT_BODY.Object);
+		ProjectileMeshComponent->SetGenerateOverlapEvents(true);
 	}
+
+	Damage = 1;
 }
 
 // Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	//CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
 }
 
 // Called every frame
@@ -81,11 +83,19 @@ void AProjectile::FireInDirection(const FVector& ShootDirection)
 }
 
 void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+{	
+	
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("TP_VirtualRealityPawn_Motion"))))
 	{
-		//Destroy();
-		//UE_LOG(LogTemp, Warning, TEXT("Projectile Overlap"));
+		Destroy();
+		UE_LOG(LogClass, Warning, TEXT("name : %s"),*OverlappedComp->GetName());
+		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherActor->GetName());
+		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherActor->GetClass()->GetName());
+		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherComp->GetName());
+
+		Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->SetPlayerCurrentHP(Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP() - Damage);
+		UE_LOG(LogClass, Warning, TEXT("Player HP : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP());
+		UE_LOG(LogClass, Warning, TEXT("Player LIFE : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentLife());
 	}
 }
 

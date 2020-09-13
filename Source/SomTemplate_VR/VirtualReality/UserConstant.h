@@ -3,6 +3,9 @@
 // System Constant
 const int TIME_UPDATE_INTERVAL = 30;
 
+const int PLAYER_MAX_HP = 10;
+const int PLAYER_MAX_LIFE = 3;
+
 enum class Weapon_Mode
 {
 	GUN = 0,
@@ -22,7 +25,7 @@ const int LEFT_BOUNDARY = -100000;
 const float MOVEMENT_ACCELERATION_SPEED = 2.f;
 const float MOVEMENT_DECELERATION_SPEED = 3.f;
 const float MOVEMENT_MAX_SPEED = 60.f;
-const float ROTATION_X_SPEED = 1.0f;
+const float ROTATION_X_SPEED = 2.0f;
 
 enum class Player_Direction
 {
@@ -36,6 +39,9 @@ enum class Player_Direction
 
 // Player Projectile Constant
 const int PLAYER_PROJECTILE_LIFETIME = 120;
+
+// Player Sword Constant
+const int PLAYER_SWORD_ATTACK_DELAY = 100;
 
 
 // Boss Pattern Constant

@@ -10,7 +10,6 @@
 #include "TP_VirtualRealityPawn_Motion.generated.h"
 
 
-
 UCLASS()
 class SOMTEMPLATE_VR_API ATP_VirtualRealityPawn_Motion : public APawn
 {
@@ -24,6 +23,10 @@ class SOMTEMPLATE_VR_API ATP_VirtualRealityPawn_Motion : public APawn
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* VRCamera;
+
+	class USphereComponent* CollisionSphere;
+
+	class UStaticMeshComponent* CollisionMeshComponent;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
@@ -66,6 +69,12 @@ private:
 	FVector Position_When_Released;
 
 	bool WeaponMode;
+
+	int Player_CurrentHP;
+	int Player_MaxHP;
+
+	int Player_CurrentLife;
+	int Player_MaxLife;
 
 protected:
 	
@@ -113,6 +122,12 @@ public:
 	void Attack_Mode_Change_Press();
 	void Attack_Mode_Change_Release();
 
+	
+	void SetPlayerCurrentHP(int hp);
+	int GetPlayerCurrentHP();
+
+	void SetPlayerCurrentLife(int life);
+	int GetPlayerCurrentLife();
 
 	void Test();
 	

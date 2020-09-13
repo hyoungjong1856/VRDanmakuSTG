@@ -24,6 +24,7 @@ void ABoss_First_Split_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
 }
 
 // Called every frame

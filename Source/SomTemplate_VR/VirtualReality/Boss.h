@@ -84,8 +84,6 @@ public:
 	// Sets default values for this actor's properties
 	//ABoss();
 
-	
-	static ABoss* GetInstance();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss")
 	int Boss_MaxHP;
@@ -108,11 +106,11 @@ public:
 	UStaticMeshComponent* Body;
 	
 	
-	int GetBossMaxHp();
+	int GetBossMaxHP();
 
-	int GetBossCurrentHp();
+	int GetBossCurrentHP();
 
-	void SetBossCurrentHp(int hp);
+	void SetBossCurrentHP(int hp);
 	
 	void Pattern_1();
 	void Pattern_2();

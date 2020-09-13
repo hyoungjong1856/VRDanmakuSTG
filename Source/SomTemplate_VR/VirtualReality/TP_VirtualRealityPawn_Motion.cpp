@@ -14,8 +14,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/SphereComponent.h"
 #include "MotionControllerComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Player_Normal_Projectile.h"
+#include "ConstructorHelpers.h"
 
 // Sets default values
 ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
@@ -28,10 +31,30 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	CameraBase = CreateDefaultSubobject<USceneComponent>(TEXT("VROrigin"));
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	//CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 
 	RootComponent = RootScene;
 	CameraBase->SetupAttachment(RootComponent);
 	VRCamera->SetupAttachment(CameraBase);
+
+	/*
+	CollisionSphere->SetupAttachment(CameraBase);
+
+	CollisionSphere->InitSphereRadius(100.f);
+	CollisionSphere->AddRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	CollisionSphere->SetGenerateOverlapEvents(false);*/
+
+	CollisionMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionBody"));
+	CollisionMeshComponent->SetupAttachment(CameraBase);
+	
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
+
+	if (PT_BODY.Succeeded())
+	{
+		CollisionMeshComponent->SetStaticMesh(PT_BODY.Object);
+		CollisionMeshComponent->SetGenerateOverlapEvents(true);
+		CollisionMeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+	}
 
 	ThumbDeadzone = 0.7f;
 	bRightStickDown = false;
@@ -52,6 +75,13 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	Position_When_Pressed = Position_When_Released = FVector(0.0f, 0.0f, 0.0f);
 
 	WeaponMode = static_cast<bool>(Weapon_Mode::GUN);
+
+	
+	Player_MaxHP = PLAYER_MAX_HP;
+	Player_MaxLife = PLAYER_MAX_LIFE;
+
+	Player_CurrentHP = Player_MaxHP;
+	Player_CurrentLife = Player_MaxLife;
 }
 
 // Called when the game starts or when spawned
@@ -332,7 +362,7 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this;
 				SpawnParams.Instigator = Instigator;
-				AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				APlayer_Normal_Projectile* Projectile = World->SpawnActor<APlayer_Normal_Projectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 				//UE_LOG(LogTemp, Warning, TEXT("fire location x:%f, y:%f, z:%f"), MuzzleLocation.X, MuzzleLocation.Y, MuzzleLocation.Z);
 				//UE_LOG(LogTemp, Warning, TEXT("player location x:%f, y:%f, z:%f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 
@@ -416,6 +446,28 @@ void ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Release()
 	float dot = line.Z;
 
 }
+
+
+void ATP_VirtualRealityPawn_Motion::SetPlayerCurrentHP(int hp)
+{
+	Player_CurrentHP = hp;
+}
+
+int ATP_VirtualRealityPawn_Motion::GetPlayerCurrentHP()
+{
+	return Player_CurrentHP;
+}
+
+void ATP_VirtualRealityPawn_Motion::SetPlayerCurrentLife(int life)
+{
+	Player_CurrentLife = life;
+}
+
+int ATP_VirtualRealityPawn_Motion::GetPlayerCurrentLife()
+{
+	return Player_CurrentLife;
+}
+
 
 void ATP_VirtualRealityPawn_Motion::Test()
 {

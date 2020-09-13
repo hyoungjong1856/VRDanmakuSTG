@@ -14,9 +14,6 @@ UCLASS()
 class SOMTEMPLATE_VR_API APlayer_Normal_Projectile : public AProjectile
 {
 	GENERATED_BODY()
-
-private:
-	ABoss* Boss;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -32,6 +29,5 @@ public:
 
 	virtual void Check_Destroy() override;
 
-	UFUNCTION()
-	void PNP_OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

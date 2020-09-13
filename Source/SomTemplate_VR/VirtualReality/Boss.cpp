@@ -63,17 +63,6 @@ ABoss::ABoss()
 	//InputComponent->BindAction("Test", IE_Pressed, this, &ABoss::Test);
 }
 
-ABoss* ABoss::GetInstance()
-{
-	if (GEngine)
-	{
-		ABoss* Boss_Instance = NewObject<ABoss>();
-			//Cast<ABoss>(GEngine->GameSingleton);
-		return Boss_Instance;
-	}
-	return nullptr;
-}
-
 // Called when the game starts or when spawned
 void ABoss::BeginPlay()
 {
@@ -84,84 +73,91 @@ void ABoss::BeginPlay()
 // Called every frame
 void ABoss::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-	Pattern_Timer += DeltaTime;
-
-	if (Boss_CurrentHP <= 2000)
+	if (Boss_CurrentHP <= 0)
 	{
-		SetActorHiddenInGame(false);
-		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN4);
+		Destroy();
 	}
-	else if (Boss_CurrentHP <= 5000)
-		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN3);
-	else if (Boss_CurrentHP <= 8000)
-		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN2);
 	else
-		CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN1);
-
-
-	switch (CurrentPattern)
 	{
-	case 1:
-	{
-		if (Pattern_Timer > 1)
+		Super::Tick(DeltaTime);
+		Pattern_Timer += DeltaTime;
+
+		if (Boss_CurrentHP <= 2000)
 		{
-			Pattern_1();
-			Pattern_Timer = 0.0;
+			SetActorHiddenInGame(false);
+			CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN4);
 		}
-		Pattern_1_Movement();
-		break;
+		else if (Boss_CurrentHP <= 5000)
+			CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN3);
+		else if (Boss_CurrentHP <= 8000)
+			CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN2);
+		else
+			CurrentPattern = static_cast<int>(Boss_Pattern::PATTERN1);
+
+
+		switch (CurrentPattern)
+		{
+		case 1:
+		{
+			if (Pattern_Timer > 1)
+			{
+				Pattern_1();
+				Pattern_Timer = 0.0;
+			}
+			Pattern_1_Movement();
+			break;
+		}
+		case 2:
+			if (Pattern_Timer > 1)
+			{
+				Pattern_2();
+				Pattern_Timer = 0.0;
+			}
+			Pattern_2_Movement();
+			break;
+
+		case 3:
+			if (Pattern_Timer > 1)
+			{
+				Pattern_3();
+				Pattern_Timer = 0.0;
+			}
+			Pattern_3_Movement();
+			break;
+
+		case 4:
+			if (Pattern_Timer > 1)
+			{
+				Pattern_4();
+				Pattern_Timer = 0.0;
+			}
+			Pattern_4_Movement();
+			break;
+		}
+
+		//UE_LOG(LogTemp, Warning, TEXT("Boss Location: %f %f %f\n"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 	}
-	case 2:
-		if (Pattern_Timer > 1)
-		{
-			Pattern_2();
-			Pattern_Timer = 0.0;
-		}
-		Pattern_2_Movement();
-		break;
-
-	case 3:
-		if (Pattern_Timer > 1)
-		{
-			Pattern_3();
-			Pattern_Timer = 0.0;
-		}
-		Pattern_3_Movement();
-		break;
-
-	case 4:
-		if (Pattern_Timer > 1)
-		{
-			Pattern_4();
-			Pattern_Timer = 0.0;
-		}
-		Pattern_4_Movement();
-		break;
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Boss Location: %f %f %f\n"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
-
+	
 }
 
-int ABoss::GetBossMaxHp()
+int ABoss::GetBossMaxHP()
 {
 	return Boss_MaxHP;
 }
 
-int ABoss::GetBossCurrentHp()
+int ABoss::GetBossCurrentHP()
 {
 	return Boss_CurrentHP;
 }
 
-void ABoss::SetBossCurrentHp(int hp)
+void ABoss::SetBossCurrentHP(int hp)
 {
 	Boss_CurrentHP = hp;
 }
 
 void ABoss::Pattern_1()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_1 start"));
+	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_1 %f, %f, %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 	FActorSpawnParameters SpawnParams;
 
 
@@ -206,6 +202,8 @@ void ABoss::Pattern_1()
 void ABoss::Pattern_2()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_2 start"));
+	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_2 %f, %f, %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+
 	FActorSpawnParameters SpawnParams;
 
 
@@ -288,6 +286,8 @@ void ABoss::Pattern_2()
 void ABoss::Pattern_3()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_3 start"));
+	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_3 %f, %f, %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+
 	FActorSpawnParameters SpawnParams;
 
 	
@@ -326,6 +326,8 @@ void ABoss::Pattern_3()
 void ABoss::Pattern_4()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_4 start"));
+	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_4 %f, %f, %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+
 	FActorSpawnParameters SpawnParams;
 
 

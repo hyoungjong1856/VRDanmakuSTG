@@ -6,7 +6,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TP_Variables.h"
+#include "Boss.h"
 #include "TP_MotionController.generated.h"
+
+class ABoss;
 
 UCLASS()
 class SOMTEMPLATE_VR_API ATP_MotionController : public AActor
@@ -161,6 +164,10 @@ private: // SomWorks :D // Variables Initialization //
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VRTemplate|Variables", meta = (AllowPrivateAccess = "true"))
 	class UMaterial* BeamMaterial;
 
+	int Sword_Damage;
+
+	int Sword_Attack_Timer;
+
 protected:	
 
 public:		
@@ -171,6 +178,9 @@ public:
 
 	void Hide_Gun(bool visibility);
 	void Hide_Sword(bool visibility);
+
+	UFUNCTION()
+	void SNB_OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	FORCEINLINE class UMotionControllerComponent* GetMotionController() const { return MotionController; }
 	FORCEINLINE FRotator GetInitialControllerRotation() const { return InitialControllerRotation; }

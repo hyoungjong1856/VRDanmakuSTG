@@ -6,6 +6,7 @@
 #include "TP_HandAnimInstance.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -26,6 +27,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "UserConstant.h"
 
 // Sets default values
 ATP_MotionController::ATP_MotionController()
@@ -114,13 +116,17 @@ ATP_MotionController::ATP_MotionController()
 	Sword->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	Sword->SetRelativeRotation(FRotator(-90.0f, -90.0f, 0.0f));
 	Sword->SetWorldScale3D(FVector(4.0f, 10.0f, 4.0f));
-	Sword->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	Sword->SetGenerateOverlapEvents(true);
+	Sword->SetCollisionProfileName(TEXT("OverlapAllDynamic"));	
+
+	Sword_Damage = 100;
+	Sword_Attack_Timer = 0;
 
 	if (SM_Sword.Succeeded())
 	{
 		Sword->SetSkeletalMesh(SM_Sword.Object);
 	}
-	
+		
 
 	// Weapon //
 
@@ -268,6 +274,9 @@ void ATP_MotionController::BeginPlay()
 	{
 		HandMesh->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
 	}
+
+	// Sword Overlap
+	Sword->OnComponentBeginOverlap.AddDynamic(this, &ATP_MotionController::SNB_OnOverlapBegin);
 }
 
 // Called every frame
@@ -729,4 +738,16 @@ void ATP_MotionController::Hide_Gun(bool visibility)
 void ATP_MotionController::Hide_Sword(bool visibility)
 {
 	Sword->SetHiddenInGame(visibility);
+}
+
+void ATP_MotionController::SNB_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Sword_Attack_Timer++;
+	if ((Sword_Attack_Timer > PLAYER_SWORD_ATTACK_DELAY) && (OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("Boss"))))
+	{
+		Cast<ABoss>(OtherActor)->SetBossCurrentHP(Cast<ABoss>(OtherActor)->GetBossCurrentHP() - Sword_Damage);
+		UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHP());
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Attack!"), true, FVector2D(5.0f, 5.0f));
+		Sword_Attack_Timer = 0;
+	}
 }

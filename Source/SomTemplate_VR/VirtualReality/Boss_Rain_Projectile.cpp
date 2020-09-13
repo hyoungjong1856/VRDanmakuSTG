@@ -24,7 +24,7 @@ void ABoss_Rain_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Check_Destroy();
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlapBegin);
 }
 
 // Called every frame
@@ -32,5 +32,13 @@ void ABoss_Rain_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Check_Destroy();
+}
+
+void ABoss_Rain_Projectile::Check_Destroy()
+{
+	LifeTime_Counter++;
+	if (LifeTime_Counter > 1000)
+		Destroy();
 }
 
