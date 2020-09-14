@@ -18,6 +18,8 @@
 #include "MotionControllerComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Player_Normal_Projectile.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -31,28 +33,30 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	CameraBase = CreateDefaultSubobject<USceneComponent>(TEXT("VROrigin"));
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	//CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+	Player_HUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("HUD"));
 
 	RootComponent = RootScene;
 	CameraBase->SetupAttachment(RootComponent);
 	VRCamera->SetupAttachment(CameraBase);
-
-	/*
-	CollisionSphere->SetupAttachment(CameraBase);
-
-	CollisionSphere->InitSphereRadius(100.f);
-	CollisionSphere->AddRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-	CollisionSphere->SetGenerateOverlapEvents(false);*/
+	Player_HUD->SetupAttachment(VRCamera);
+	Player_HUD->AddLocalRotation(FRotator(180.0f, 0.0f, 180.0f));
+	Player_HUD->AddRelativeLocation(FVector(1500.0f, 0.0f, 0.0f));
+	Player_HUD->SetDrawSize(FVector2D(1920.0f, 1080.0f));
 
 	CollisionMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionBody"));
 	CollisionMeshComponent->SetupAttachment(CameraBase);
 	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> P_HUD(TEXT("/Game/VirtualRealityBP/UI/UI/BP_HUD"));
+
+	PlayerHUDClass = P_HUD.Class;
+	Player_HUD->SetWidgetClass(PlayerHUDClass);
 
 	if (PT_BODY.Succeeded())
 	{
 		CollisionMeshComponent->SetStaticMesh(PT_BODY.Object);
 		CollisionMeshComponent->SetGenerateOverlapEvents(true);
+		CollisionMeshComponent->SetVisibility(false);
 		CollisionMeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 	}
 

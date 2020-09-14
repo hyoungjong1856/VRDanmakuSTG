@@ -85,10 +85,10 @@ public:
 	//ABoss();
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Boss")
 	int Boss_MaxHP;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Boss")
 	int Boss_CurrentHP;
 
 protected:
@@ -105,11 +105,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Body;
 	
-	
+	UFUNCTION(BlueprintCallable)
 	int GetBossMaxHP();
 
+	UFUNCTION(BlueprintCallable)
 	int GetBossCurrentHP();
 
+	UFUNCTION(BlueprintCallable)
 	void SetBossCurrentHP(int hp);
 	
 	void Pattern_1();

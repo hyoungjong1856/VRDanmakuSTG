@@ -24,7 +24,11 @@ class SOMTEMPLATE_VR_API ATP_VirtualRealityPawn_Motion : public APawn
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* VRCamera;
 
-	class USphereComponent* CollisionSphere;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class UUserWidget> PlayerHUDClass;
+
+	UPROPERTY()
+	class UWidgetComponent* Player_HUD;
 
 	class UStaticMeshComponent* CollisionMeshComponent;
 	
@@ -122,11 +126,16 @@ public:
 	void Attack_Mode_Change_Press();
 	void Attack_Mode_Change_Release();
 
-	
+	UFUNCTION(BlueprintCallable)
 	void SetPlayerCurrentHP(int hp);
+
+	UFUNCTION(BlueprintCallable)
 	int GetPlayerCurrentHP();
 
+	UFUNCTION(BlueprintCallable)
 	void SetPlayerCurrentLife(int life);
+
+	UFUNCTION(BlueprintCallable)
 	int GetPlayerCurrentLife();
 
 	void Test();

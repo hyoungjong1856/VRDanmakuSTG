@@ -75,7 +75,7 @@ void ABoss::Tick(float DeltaTime)
 {
 	if (Boss_CurrentHP <= 0)
 	{
-		Destroy();
+		Body->SetVisibility(false);
 	}
 	else
 	{
