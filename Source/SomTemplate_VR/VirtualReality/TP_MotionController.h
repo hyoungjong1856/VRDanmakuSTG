@@ -168,6 +168,10 @@ private: // SomWorks :D // Variables Initialization //
 
 	int Sword_Attack_Timer;
 
+	TArray<AActor*> FoundActors;
+
+	ATP_VirtualRealityPawn_Motion* Player;
+
 protected:	
 
 public:		

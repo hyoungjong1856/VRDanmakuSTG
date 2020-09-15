@@ -27,6 +27,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "TP_VirtualRealityPawn_Motion.h"
 #include "UserConstant.h"
 
 // Sets default values
@@ -277,6 +278,14 @@ void ATP_MotionController::BeginPlay()
 
 	// Sword Overlap
 	Sword->OnComponentBeginOverlap.AddDynamic(this, &ATP_MotionController::SNB_OnOverlapBegin);
+
+	// Find Player Actor
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATP_VirtualRealityPawn_Motion::StaticClass(), FoundActors);
+
+	for (int i = 0; i < FoundActors.Num(); i++)
+	{
+		Player = Cast<ATP_VirtualRealityPawn_Motion>(FoundActors[i]);
+	}
 }
 
 // Called every frame
@@ -746,8 +755,9 @@ void ATP_MotionController::SNB_OnOverlapBegin(UPrimitiveComponent* OverlappedCom
 	if ((Sword_Attack_Timer > PLAYER_SWORD_ATTACK_DELAY) && (OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("Boss"))))
 	{
 		Cast<ABoss>(OtherActor)->SetBossCurrentHP(Cast<ABoss>(OtherActor)->GetBossCurrentHP() - Sword_Damage);
-		UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHP());
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Attack!"), true, FVector2D(5.0f, 5.0f));
+		Player->SetScore(Player->GetScore() + (Sword_Damage * SWORD_SCORE_RATE));
+		//UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHP());
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Attack!"), true, FVector2D(5.0f, 5.0f));
 		Sword_Attack_Timer = 0;
 	}
 }

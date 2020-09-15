@@ -16,12 +16,6 @@ ABoss_Second_Split_Projectile::ABoss_Second_Split_Projectile()
 	ProjectileMovementComponent->InitialSpeed = 3000.0f;
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Cube.Cube"));
-
-	if (PT_BODY.Succeeded())
-	{
-		ProjectileMeshComponent->SetStaticMesh(PT_BODY.Object);
-	}
 }
 
 // Called when the game starts or when spawned

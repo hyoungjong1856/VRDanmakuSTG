@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.h"
 #include "Boss.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Player_Normal_Projectile.generated.h"
 
 class ABoss;
@@ -14,6 +15,13 @@ UCLASS()
 class SOMTEMPLATE_VR_API APlayer_Normal_Projectile : public AProjectile
 {
 	GENERATED_BODY()
+
+private:
+	TArray<AActor*> FoundActors;
+
+	ATP_VirtualRealityPawn_Motion* Player;
+
+	class UParticleSystemComponent* PlayerProjectileParticle;
 	
 public:	
 	// Sets default values for this actor's properties

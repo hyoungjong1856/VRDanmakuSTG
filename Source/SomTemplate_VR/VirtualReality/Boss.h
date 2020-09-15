@@ -61,8 +61,6 @@ private:
 	// Boss Movement variable
 	ATP_VirtualRealityPawn_Motion* Player_Pawn;
 
-	FVector Boss_Initial_Position;
-
 	int Boss_PreHP;
 
 	int RandVector_Num;
@@ -79,6 +77,9 @@ private:
 	FVector PlayerLocation;
 	float Distance_P_To_B;
 	FVector Direction_Vector;
+
+	// Boss Ending variable
+	int ClearDelayTimer;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -123,6 +124,8 @@ public:
 	void Pattern_2_Movement();
 	void Pattern_3_Movement();
 	void Pattern_4_Movement();
+
+	void Return_To_Initial_Location();
 
 	FVector Random_Vector(int random_value);
 

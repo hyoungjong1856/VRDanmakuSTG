@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TP_VirtualRealityPawn_Motion.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Projectile.generated.h"
 
 class ATP_VirtualRealityPawn_Motion;
@@ -47,6 +48,8 @@ public:
 	virtual void Check_Destroy();
 
 	void FireInDirection(const FVector& ShootDirection);
+
+	class UParticleSystemComponent* ProjectileParticle;
 
 	// declare overlap begin function
 	UFUNCTION()

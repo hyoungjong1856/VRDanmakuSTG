@@ -6,7 +6,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/GameInstance.h"
 #include "UserConstant.h"
+#include <map>
 #include "TP_VirtualRealityPawn_Motion.generated.h"
 
 
@@ -80,6 +82,11 @@ private:
 	int Player_CurrentLife;
 	int Player_MaxLife;
 
+	// Ranking
+	int Score;
+
+	std::map<int, FString> RankingData;
+
 protected:
 	
 public:
@@ -137,6 +144,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int GetPlayerCurrentLife();
+
+	UFUNCTION(BlueprintCallable)
+	void SetScore(int score);
+
+	UFUNCTION(BlueprintCallable)
+	int GetScore();
+
+	UFUNCTION(BlueprintCallable)
+	int GetRankingScore(int index);
+
+	UFUNCTION(BlueprintCallable)
+	FString GetRankingName(int index);
 
 	void Test();
 	

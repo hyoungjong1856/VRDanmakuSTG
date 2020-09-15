@@ -5,6 +5,7 @@
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/Engine.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -14,7 +15,7 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = false;
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	CollisionComponent->InitSphereRadius(15.0f);
+	CollisionComponent->InitSphereRadius(1.0f);
 	RootComponent = CollisionComponent;
 
 	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PROJECTILE_BODY"));
@@ -25,19 +26,33 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent->InitialSpeed = 10000.0f;
 	ProjectileMovementComponent->MaxSpeed = 10000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	
+	// Particle
+	ProjectileParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PROJECTILEPARTICLE"));
+	ProjectileParticle->SetupAttachment(CollisionComponent);
+	ProjectileParticle->SetRelativeScale3D(FVector(3.0f, 3.0f, 3.0f));
 
 	// Set no gravity
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> PT_BODY(TEXT("/Game/VirtualRealityBP/Sphere.Sphere"));
 
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleAsset(TEXT("ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_thunderBall.P_ky_thunderBall'"));
+
+	/*
 	if (PT_BODY.Succeeded())
 	{
 		ProjectileMeshComponent->SetStaticMesh(PT_BODY.Object);
-		ProjectileMeshComponent->SetGenerateOverlapEvents(true);
+		ProjectileMeshComponent->SetGenerateOverlapEvents(false);
 	}
-
-	Damage = 1;
+	*/
+	if (ParticleAsset.Succeeded())
+	{
+		ProjectileParticle->SetTemplate(ParticleAsset.Object);
+		ProjectileParticle->SetGenerateOverlapEvents(false);
+	}
+	
+	Damage = 2;
 }
 
 // Called when the game starts or when spawned
@@ -88,14 +103,19 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("TP_VirtualRealityPawn_Motion"))))
 	{
 		Destroy();
+		/*
 		UE_LOG(LogClass, Warning, TEXT("name : %s"),*OverlappedComp->GetName());
 		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherActor->GetName());
 		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherActor->GetClass()->GetName());
-		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherComp->GetName());
+		UE_LOG(LogClass, Warning, TEXT("name : %s"), *OtherComp->GetName());*/
 
 		Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->SetPlayerCurrentHP(Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP() - Damage);
-		UE_LOG(LogClass, Warning, TEXT("Player HP : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP());
-		UE_LOG(LogClass, Warning, TEXT("Player LIFE : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentLife());
+		UE_LOG(LogClass, Warning, TEXT("projecdtile %f %f %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+		UE_LOG(LogClass, Warning, TEXT("PLAYER %f %f %f"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().X, Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().Y, Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().Z);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("attack %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP()));
+
+		//UE_LOG(LogClass, Warning, TEXT("Player HP : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP());
+		//UE_LOG(LogClass, Warning, TEXT("Player LIFE : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentLife());
 	}
 }
 

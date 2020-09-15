@@ -42,6 +42,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 	Player_HUD->AddLocalRotation(FRotator(180.0f, 0.0f, 180.0f));
 	Player_HUD->AddRelativeLocation(FVector(1500.0f, 0.0f, 0.0f));
 	Player_HUD->SetDrawSize(FVector2D(1920.0f, 1080.0f));
+	Player_HUD->SetGenerateOverlapEvents(false);
 
 	CollisionMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionBody"));
 	CollisionMeshComponent->SetupAttachment(CameraBase);
@@ -57,7 +58,7 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 		CollisionMeshComponent->SetStaticMesh(PT_BODY.Object);
 		CollisionMeshComponent->SetGenerateOverlapEvents(true);
 		CollisionMeshComponent->SetVisibility(false);
-		CollisionMeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+		CollisionMeshComponent->SetRelativeScale3D(FVector(1.3f, 1.3f, 1.3f));
 	}
 
 	ThumbDeadzone = 0.7f;
@@ -86,6 +87,13 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 
 	Player_CurrentHP = Player_MaxHP;
 	Player_CurrentLife = Player_MaxLife;
+
+	Score = 0;
+
+	// Dummy Data
+	RankingData.insert(std::make_pair(23456, "WOW"));
+	RankingData.insert(std::make_pair(12345, "LUX"));
+	RankingData.insert(std::make_pair(9999, "CAT"));
 }
 
 // Called when the game starts or when spawned
@@ -141,7 +149,7 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 	}
 
 	// 엑터 초기 위치 설정
-	SetActorLocation(FVector(-3000.0f, 0.0f, 10000.0f));
+	SetActorLocation(PLAYER_INITIAL_POSITION);
 
 }
 
@@ -154,6 +162,19 @@ void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 	{
 		Time_Update_counter = 0;
 		//UE_LOG(LogTemp, Warning, TEXT("GetTime %.0f"), GetWorld()->GetTimeSeconds());
+
+		if (Player_CurrentHP <= 0) {
+			if (Player_CurrentLife <= 0)
+			{
+				UGameplayStatics::OpenLevel(this, FName(TEXT("GameOver")));
+			}
+			else
+			{
+				Player_CurrentLife -= 1;
+				Player_CurrentHP = Player_MaxHP;
+				SetActorLocation(PLAYER_INITIAL_POSITION);
+			}
+		}
 	}
 	Time_Update_counter++;
 }
@@ -472,6 +493,48 @@ int ATP_VirtualRealityPawn_Motion::GetPlayerCurrentLife()
 	return Player_CurrentLife;
 }
 
+void ATP_VirtualRealityPawn_Motion::SetScore(int score)
+{
+	Score = score;
+}
+
+
+int ATP_VirtualRealityPawn_Motion::GetScore()
+{
+	return Score;
+}
+
+int ATP_VirtualRealityPawn_Motion::GetRankingScore(int index)
+{
+	int score[3] = { 0 };
+	int i = 0;
+	for (auto iter = RankingData.begin(); iter != RankingData.end(); iter++)
+	{
+		if (i < 3)
+		{
+			score[i] = iter->first;
+			i++;
+		}
+	}
+
+	return score[index];
+}
+
+FString ATP_VirtualRealityPawn_Motion::GetRankingName(int index)
+{
+	FString name[3] = { "" };
+	int i = 0;
+	for (auto iter = RankingData.begin(); iter != RankingData.end(); iter++)
+	{
+		if (i < 3)
+		{
+			name[i] = iter->second;
+			i++;
+		}
+	}
+
+	return name[index];
+}
 
 void ATP_VirtualRealityPawn_Motion::Test()
 {

@@ -26,12 +26,10 @@ ABoss::ABoss()
 	("/Game/VirtualRealityBP/Boss/Corvette-F3.Corvette-F3"));
 	
 
-	Boss_Initial_Position = FVector(0.0f, 0.0f, 10000.0f);
-
 	if (BossBodyAsset.Succeeded())
 	{
 		Body->SetStaticMesh(BossBodyAsset.Object);
-		Body->SetRelativeLocation(Boss_Initial_Position);
+		Body->SetRelativeLocation(BOSS_INITIAL_POSITION);
 		Body->SetWorldRotation(FRotator(0.0f, 90.0f, 0.0f));
 		Body->SetWorldScale3D(FVector(10.f));
 	}
@@ -59,15 +57,13 @@ ABoss::ABoss()
 
 	Direction_Vector = FVector(0.0f, 0.0f, 0.0f);
 
-	// Test Input
-	//InputComponent->BindAction("Test", IE_Pressed, this, &ABoss::Test);
+	ClearDelayTimer = 0;
 }
 
 // Called when the game starts or when spawned
 void ABoss::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -76,6 +72,10 @@ void ABoss::Tick(float DeltaTime)
 	if (Boss_CurrentHP <= 0)
 	{
 		Body->SetVisibility(false);
+		ClearDelayTimer++;
+
+		if (ClearDelayTimer > CLEAR_DELAY_TIME)
+			UGameplayStatics::OpenLevel(this, FName(TEXT("GameClear")));
 	}
 	else
 	{
@@ -181,7 +181,7 @@ void ABoss::Pattern_1()
 						Projectile[i * 8 + j] = World->SpawnActor<AProjectile>(
 							Pattern_1_Projectile, 
 							MuzzleLocation, 
-							GetActorRotation() + FRotator(45.0f * i, 360.0f / PATTERN_1_PROJECTILE_NUM * j, 0.0f), 
+							GetActorRotation() + FRotator(40.0f * i, 360.0f / (PATTERN_1_PROJECTILE_NUM + 1) * j, 0.0f), 
 							SpawnParams);
 						if (Projectile[i * 8 + j])
 						{
@@ -410,6 +410,8 @@ void ABoss::Pattern_4()
 
 void ABoss::Pattern_1_Movement()
 {
+	Return_To_Initial_Location();
+
 	if (Boss_CurrentHP != Boss_PreHP)
 	{
 		PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
@@ -429,6 +431,8 @@ void ABoss::Pattern_1_Movement()
 
 void ABoss::Pattern_2_Movement()
 {
+	Return_To_Initial_Location();
+
 	// ∏ÿ√Á¿÷¥¬ Ω√∞£
 	if (Dash_Counter == 4)
 	{
@@ -469,6 +473,8 @@ void ABoss::Pattern_2_Movement()
 
 void ABoss::Pattern_3_Movement()
 {
+	Return_To_Initial_Location();
+
 	// ∏ÿ√Á¿÷¥¬ Ω√∞£
 	if (Movement_Timer < PATTERN_3_MOVEMENT_BREAKTIME)
 	{
@@ -515,6 +521,8 @@ void ABoss::Pattern_3_Movement()
 
 void ABoss::Pattern_4_Movement()
 {
+	Return_To_Initial_Location();
+
 	// ∏ÿ√Á¿÷¥¬ Ω√∞£
 	if (Dash_Counter == 6)
 	{
@@ -550,6 +558,19 @@ void ABoss::Pattern_4_Movement()
 				Movement_Timer = 0;
 			}
 		}
+	}
+}
+
+void ABoss::Return_To_Initial_Location()
+{
+	if (GetActorLocation().X > FORWARD_BOUNDARY ||
+		GetActorLocation().X < BACK_BOUNDARY ||
+		GetActorLocation().Z > UP_BOUNDARY ||
+		GetActorLocation().Z < DOWN_BOUNDARY ||
+		GetActorLocation().Y > RIGHT_BOUNDARY ||
+		GetActorLocation().Y < LEFT_BOUNDARY)
+	{
+		Body->SetRelativeLocation(BOSS_INITIAL_POSITION);
 	}
 }
 

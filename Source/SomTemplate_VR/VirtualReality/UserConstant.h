@@ -1,16 +1,25 @@
 #pragma once
 
-// System Constant
+// Initial Constant
 const int TIME_UPDATE_INTERVAL = 30;
 
 const int PLAYER_MAX_HP = 10;
 const int PLAYER_MAX_LIFE = 3;
+
+const FVector PLAYER_INITIAL_POSITION = FVector(-3000.0f, 0.0f, 10000.0f);
+const FVector BOSS_INITIAL_POSITION = FVector(0.0f, 0.0f, 10000.0f);
+
+const int CLEAR_DELAY_TIME = 1000;
 
 enum class Weapon_Mode
 {
 	GUN = 0,
 	SWORD = 1
 };
+
+const float GUN_SCORE_RATE = 0.5f;
+const float SWORD_SCORE_RATE = 1.0f;
+
 
 // Map Constant
 const int UP_BOUNDARY = 200000;
