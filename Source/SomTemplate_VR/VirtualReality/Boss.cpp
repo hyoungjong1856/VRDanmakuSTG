@@ -73,7 +73,6 @@ void ABoss::Tick(float DeltaTime)
 	{
 		Body->SetVisibility(false);
 		ClearDelayTimer++;
-
 		if (ClearDelayTimer > CLEAR_DELAY_TIME)
 			UGameplayStatics::OpenLevel(this, FName(TEXT("GameClear")));
 	}

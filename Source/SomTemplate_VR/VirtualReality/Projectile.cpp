@@ -112,7 +112,7 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->SetPlayerCurrentHP(Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP() - Damage);
 		UE_LOG(LogClass, Warning, TEXT("projecdtile %f %f %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 		UE_LOG(LogClass, Warning, TEXT("PLAYER %f %f %f"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().X, Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().Y, Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetActorLocation().Z);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("attack %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP()));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("attack %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP()));
 
 		//UE_LOG(LogClass, Warning, TEXT("Player HP : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP());
 		//UE_LOG(LogClass, Warning, TEXT("Player LIFE : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentLife());

@@ -9,7 +9,7 @@ const int PLAYER_MAX_LIFE = 3;
 const FVector PLAYER_INITIAL_POSITION = FVector(-3000.0f, 0.0f, 10000.0f);
 const FVector BOSS_INITIAL_POSITION = FVector(0.0f, 0.0f, 10000.0f);
 
-const int CLEAR_DELAY_TIME = 1000;
+const int CLEAR_DELAY_TIME = 300;
 
 enum class Weapon_Mode
 {

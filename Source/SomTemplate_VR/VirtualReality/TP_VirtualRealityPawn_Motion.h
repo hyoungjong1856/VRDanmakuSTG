@@ -157,6 +157,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetRankingName(int index);
 
+	void SelfDamage();
+
 	void Test();
 	
 };
