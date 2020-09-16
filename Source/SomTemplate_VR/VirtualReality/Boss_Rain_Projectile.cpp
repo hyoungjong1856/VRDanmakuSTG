@@ -17,6 +17,14 @@ ABoss_Rain_Projectile::ABoss_Rain_Projectile()
 
 	ProjectileMovementComponent->InitialSpeed = 3000.0f;
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleAsset(TEXT("ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_waterBall.P_ky_waterBall'"));
+
+	if (ParticleAsset.Succeeded())
+	{
+		ProjectileParticle->SetTemplate(ParticleAsset.Object);
+		ProjectileParticle->SetGenerateOverlapEvents(false);
+	}
 }
 
 // Called when the game starts or when spawned

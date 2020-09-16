@@ -6,6 +6,8 @@ const int TIME_UPDATE_INTERVAL = 30;
 const int PLAYER_MAX_HP = 10;
 const int PLAYER_MAX_LIFE = 3;
 
+const int PLAYER_IMORTAL_TIME = 200;
+
 const FVector PLAYER_INITIAL_POSITION = FVector(-3000.0f, 0.0f, 10000.0f);
 const FVector BOSS_INITIAL_POSITION = FVector(0.0f, 0.0f, 10000.0f);
 

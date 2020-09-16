@@ -87,7 +87,7 @@ void APlayer_Normal_Projectile::OnOverlapBegin(UPrimitiveComponent* OverlappedCo
 		
 		Player->SetScore(Player->GetScore() + (Damage * GUN_SCORE_RATE));
 		//UE_LOG(LogClass, Warning, TEXT("score : %d"), Player->GetScore());
-		
+
 		Destroy();
 		
 	}

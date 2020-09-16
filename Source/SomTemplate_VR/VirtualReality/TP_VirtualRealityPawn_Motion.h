@@ -8,7 +8,6 @@
 #include "GameFramework/Pawn.h"
 #include "Engine/GameInstance.h"
 #include "UserConstant.h"
-#include <map>
 #include "TP_VirtualRealityPawn_Motion.generated.h"
 
 
@@ -76,6 +75,12 @@ private:
 
 	bool WeaponMode;
 
+	bool IsImortal;
+
+	int Imortal_Timer;
+
+	int Player_PreHP;
+
 	int Player_CurrentHP;
 	int Player_MaxHP;
 
@@ -84,8 +89,6 @@ private:
 
 	// Ranking
 	int Score;
-
-	std::map<int, FString> RankingData;
 
 protected:
 	
@@ -151,11 +154,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetScore();
 
-	UFUNCTION(BlueprintCallable)
-	int GetRankingScore(int index);
-
-	UFUNCTION(BlueprintCallable)
-	FString GetRankingName(int index);
+	bool GetIsImortal();
 
 	void SelfDamage();
 

@@ -16,6 +16,13 @@ ABoss_Thrid_Split_Projectile::ABoss_Thrid_Split_Projectile()
 	ProjectileMovementComponent->InitialSpeed = 3000.0f;
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
 
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleAsset(TEXT("ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_fireBall.P_ky_fireBall'"));
+
+	if (ParticleAsset.Succeeded())
+	{
+		ProjectileParticle->SetTemplate(ParticleAsset.Object);
+		ProjectileParticle->SetGenerateOverlapEvents(false);
+	}
 }
 
 // Called when the game starts or when spawned

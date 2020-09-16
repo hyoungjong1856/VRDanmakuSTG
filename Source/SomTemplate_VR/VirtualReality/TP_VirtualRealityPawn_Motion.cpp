@@ -20,6 +20,7 @@
 #include "Player_Normal_Projectile.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "DMGGameInstance.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -81,7 +82,8 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 
 	WeaponMode = static_cast<bool>(Weapon_Mode::GUN);
 
-	
+	Player_PreHP = PLAYER_MAX_HP;
+
 	Player_MaxHP = PLAYER_MAX_HP;
 	Player_MaxLife = PLAYER_MAX_LIFE;
 
@@ -90,10 +92,8 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 
 	Score = 0;
 
-	// Dummy Data
-	RankingData.insert(std::make_pair(23456, "WOW"));
-	RankingData.insert(std::make_pair(12345, "LUX"));
-	RankingData.insert(std::make_pair(9999, "CAT"));
+	IsImortal = false;
+	Imortal_Timer = 0;
 }
 
 // Called when the game starts or when spawned
@@ -163,20 +163,43 @@ void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 		Time_Update_counter = 0;
 		//UE_LOG(LogTemp, Warning, TEXT("GetTime %.0f"), GetWorld()->GetTimeSeconds());
 
-		if (Player_CurrentHP <= 0) {
-			if (Player_CurrentLife <= 0)
-			{
-				UGameplayStatics::OpenLevel(this, FName(TEXT("GameOver")));
-			}
-			else
-			{
-				Player_CurrentLife -= 1;
-				Player_CurrentHP = Player_MaxHP;
-				SetActorLocation(PLAYER_INITIAL_POSITION);
-			}
-		}
+		Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetAttackScore(Score);
+		Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetTimeScore(GetWorld()->GetTimeSeconds());
+		Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetSurviveScore(Player_CurrentHP, Player_CurrentLife);
 	}
 	Time_Update_counter++;
+
+	if (Player_CurrentHP <= 0) {
+		if (Player_CurrentLife <= 0)
+		{
+			UGameplayStatics::OpenLevel(this, FName(TEXT("GameOver")));
+		}
+		else
+		{
+			Player_CurrentLife -= 1;
+			Player_CurrentHP = Player_MaxHP;
+			SetActorLocation(PLAYER_INITIAL_POSITION);
+			IsImortal = true;
+		}
+	}
+
+	if (IsImortal == true)
+	{
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(0.05f, 0.0f, 3.0f, FLinearColor(0.0f, 1.0f, 0.0f, 0.5f));
+		Imortal_Timer++;
+		if (Imortal_Timer > PLAYER_IMORTAL_TIME) 
+		{
+			IsImortal = false;
+			Imortal_Timer = 0;
+			UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StopCameraFade();
+		}
+	}
+
+	if (Player_PreHP != Player_CurrentHP && Player_CurrentHP != 0)
+	{
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraFade(0.5f, 0.5f, 0.03f, FLinearColor(1.0f, 0.0f, 0.0f, 1.0f));
+		Player_PreHP = Player_CurrentHP;
+	}
 }
 
 // Called to bind functionality to input
@@ -289,6 +312,7 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisVal
 	}
 
 	// When have not input
+	/*
 	if ((NewAxisValue == 0.0f) && !(Y_Axis.Movement_Speed == 0.0f) && IsOutOfBoundary == false) {
 		Y_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (Y_Axis.Movement_Speed < 0)
@@ -298,7 +322,7 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_Y(float NewAxisVal
 			RootScene->AddWorldOffset(GetActorForwardVector() * Y_Axis.Movement_Speed);
 		else
 			RootScene->AddWorldOffset(GetActorForwardVector() * -1 * Y_Axis.Movement_Speed);
-	}
+	}*/
 }
 
 void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisValue)
@@ -322,6 +346,7 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisVal
 	}
 
 	// When have not input
+	/*
 	if ((NewAxisValue == 0.0f) && !(X_Axis.Movement_Speed == 0.0f) && IsOutOfBoundary == false) {
 		X_Axis.Movement_Speed -= MOVEMENT_DECELERATION_SPEED;
 		if (X_Axis.Movement_Speed < 0)
@@ -331,7 +356,7 @@ void ATP_VirtualRealityPawn_Motion::MotionControllerThumbLeft_X(float NewAxisVal
 			RootScene->AddWorldOffset(GetActorRightVector() * X_Axis.Movement_Speed);
 		else
 			RootScene->AddWorldOffset(GetActorRightVector() * -1 * X_Axis.Movement_Speed);
-	}
+	}*/
 }
 
 void ATP_VirtualRealityPawn_Motion::MotionControllerThumbRight_Y(float NewAxisValue)
@@ -500,42 +525,14 @@ void ATP_VirtualRealityPawn_Motion::SetScore(int score)
 	Score = score;
 }
 
-
 int ATP_VirtualRealityPawn_Motion::GetScore()
 {
 	return Score;
 }
 
-int ATP_VirtualRealityPawn_Motion::GetRankingScore(int index)
+bool ATP_VirtualRealityPawn_Motion::GetIsImortal()
 {
-	int score[3] = { 0 };
-	int i = 0;
-	for (auto iter = RankingData.begin(); iter != RankingData.end(); iter++)
-	{
-		if (i < 3)
-		{
-			score[i] = iter->first;
-			i++;
-		}
-	}
-
-	return score[index];
-}
-
-FString ATP_VirtualRealityPawn_Motion::GetRankingName(int index)
-{
-	FString name[3] = { "" };
-	int i = 0;
-	for (auto iter = RankingData.begin(); iter != RankingData.end(); iter++)
-	{
-		if (i < 3)
-		{
-			name[i] = iter->second;
-			i++;
-		}
-	}
-
-	return name[index];
+	return IsImortal;
 }
 
 void ATP_VirtualRealityPawn_Motion::SelfDamage()
