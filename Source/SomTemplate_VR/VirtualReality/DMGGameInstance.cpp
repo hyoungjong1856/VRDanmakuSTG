@@ -42,6 +42,10 @@ UDMGGameInstance::UDMGGameInstance(const FObjectInitializer& ObjectInitializer) 
 	}
 
 	MainMenuSoundComponent->SetIntParameter(FName("MainMenuSound"), 0);
+
+	SoundVolumeRate = 0.5f;
+	
+	PlayerName = "";
 }
 
 void UDMGGameInstance::Init()
@@ -50,8 +54,6 @@ void UDMGGameInstance::Init()
 	RankingData.insert(std::make_pair(23456, "WOW"));
 	RankingData.insert(std::make_pair(12345, "LUX"));
 	RankingData.insert(std::make_pair(9999, "CAT"));
-
-	SoundVolumeRate = 0.5f;
 }
 
 void UDMGGameInstance::AddRankingData(int score, FString name)
@@ -126,6 +128,33 @@ void UDMGGameInstance::SetSurviveScore(int hp, int life)
 	SurviveScore = (hp * 500) + (life * 3000);
 }
 
+void UDMGGameInstance::AddLetter(FString letter)
+{
+	if(PlayerName.Len() < 3)
+		PlayerName = PlayerName.Append(letter);
+}
+
+void UDMGGameInstance::EraseLetter()
+{
+	if (PlayerName.Len() != 0)
+	{
+		if (PlayerName.Len() == 1)
+			PlayerName = "";
+		else
+			PlayerName = PlayerName.Mid(0, PlayerName.Len() - 1);
+	}
+}
+
+void UDMGGameInstance::AddRankingList()
+{
+	RankingData.insert(std::make_pair((AttackScore + TimeScore + SurviveScore), PlayerName));
+}
+
+FString UDMGGameInstance::GetPlayerName()
+{
+	return PlayerName;
+}
+
 void UDMGGameInstance::PlayMainMenuSound()
 {	
 	UGameplayStatics::PlaySound2D(this, MainMenuSound, 0.1f * SoundVolumeRate);
@@ -162,11 +191,6 @@ void UDMGGameInstance::PlayMainMenuSound()
 	MainMenuSound->SetPrecacheState(ESoundWavePrecacheState::Done);
 }
 
-void UDMGGameInstance::StopMainMenuSound()
-{
-	UGameplayStatics::PlaySound2D(this, MainMenuSound, 0.0f);
-}
-
 bool UDMGGameInstance::CheckMainMenuSoundPlaying()
 {
 	return MainMenuSound->GetPrecacheState() == ESoundWavePrecacheState::Done ? true : false;
@@ -177,20 +201,10 @@ void UDMGGameInstance::ChangeMainMenuSoundState()
 	MainMenuSound->SetPrecacheState(ESoundWavePrecacheState::NotStarted);
 }
 
-int UDMGGameInstance::CheckMainMenuSoundState()
-{
-	return static_cast<int>(MainMenuSound->GetPrecacheState());
-}
-
 void UDMGGameInstance::PlayInGameSound()
 {
 	UGameplayStatics::PlaySound2D(this, InGameSound, 0.1f * SoundVolumeRate);
 	InGameSound->SetPrecacheState(ESoundWavePrecacheState::Done);
-}
-
-void UDMGGameInstance::StopInGameSound()
-{
-	UGameplayStatics::PlaySound2D(this, InGameSound, 0.0f);
 }
 
 bool UDMGGameInstance::CheckInGameSoundPlaying()
@@ -205,11 +219,6 @@ void UDMGGameInstance::PlayGameClearSound()
 
 }
 
-void UDMGGameInstance::StopGameClearSound()
-{
-	UGameplayStatics::PlaySound2D(this, GameClearSound, 0.0f);
-}
-
 bool UDMGGameInstance::CheckGameClearSoundPlaying()
 {
 	return GameClearSound->GetPrecacheState() == ESoundWavePrecacheState::Done ? true : false;
@@ -219,11 +228,6 @@ void UDMGGameInstance::PlayGameOverSound()
 {
 	UGameplayStatics::PlaySound2D(this, GameOverSound, 0.1f * SoundVolumeRate);
 	GameOverSound->SetPrecacheState(ESoundWavePrecacheState::Done);
-}
-
-void UDMGGameInstance::StopGameOverSound()
-{
-	UGameplayStatics::PlaySound2D(this, GameOverSound, 0.0f);
 }
 
 bool UDMGGameInstance::CheckGameOverSoundPlaying()

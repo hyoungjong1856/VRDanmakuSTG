@@ -61,8 +61,13 @@ public:
 
 	USoundCue* MainMenuSoundCue;
 
+	// Player Name
+	FString PlayerName;
+
 
 	// Function
+
+	// Score
 	UFUNCTION(BlueprintCallable)
 	void SetAttackScore(int score);
 
@@ -78,12 +83,25 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSurviveScore(int hp, int life);
 
+	// Player Name
+	// Add letter
+	UFUNCTION(BlueprintCallable)
+	void AddLetter(FString letter);
+
+	// Erase letter
+	UFUNCTION(BlueprintCallable)
+	void EraseLetter();
+
+	// Add to Ranking List
+	UFUNCTION(BlueprintCallable)
+	void AddRankingList();
+
+	UFUNCTION(BlueprintCallable)
+	FString GetPlayerName();
+
 	// Sound
 	UFUNCTION(BlueprintCallable)
 	void PlayMainMenuSound();
-
-	UFUNCTION(BlueprintCallable)
-	void StopMainMenuSound();
 
 	UFUNCTION(BlueprintCallable)
 	bool CheckMainMenuSoundPlaying();
@@ -91,15 +109,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeMainMenuSoundState();
 
-	UFUNCTION(BlueprintCallable)
-	int CheckMainMenuSoundState();
-
 
 	UFUNCTION(BlueprintCallable)
 	void PlayInGameSound();
-
-	UFUNCTION(BlueprintCallable)
-	void StopInGameSound();
 
 	UFUNCTION(BlueprintCallable)
 	bool CheckInGameSoundPlaying();
@@ -109,17 +121,11 @@ public:
 	void PlayGameClearSound();
 
 	UFUNCTION(BlueprintCallable)
-	void StopGameClearSound();
-
-	UFUNCTION(BlueprintCallable)
 	bool CheckGameClearSoundPlaying();
 
 
 	UFUNCTION(BlueprintCallable)
 	void PlayGameOverSound();
-
-	UFUNCTION(BlueprintCallable)
-	void StopGameOverSound();
 
 	UFUNCTION(BlueprintCallable)
 	bool CheckGameOverSoundPlaying();
