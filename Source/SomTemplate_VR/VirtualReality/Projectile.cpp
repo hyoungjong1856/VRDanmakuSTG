@@ -6,6 +6,10 @@
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
+#include "DMGGameInstance.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -53,6 +57,10 @@ AProjectile::AProjectile()
 	}
 	
 	Damage = 2;
+
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundWave> PlayerIsShotSoundWave(TEXT("SoundWave'/Game/Sound/PlayerIsShot.PlayerIsShot'"));
+	PlayerIsShotSound = PlayerIsShotSoundWave.Object;
 }
 
 // Called when the game starts or when spawned
@@ -117,6 +125,8 @@ void AProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 		//UE_LOG(LogClass, Warning, TEXT("Player HP : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentHP());
 		//UE_LOG(LogClass, Warning, TEXT("Player LIFE : %d"), Cast<ATP_VirtualRealityPawn_Motion>(OtherActor)->GetPlayerCurrentLife());
+		UGameplayStatics::PlaySound2D(this, PlayerIsShotSound, 0.5f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
+
 		Destroy();
 	}
 }

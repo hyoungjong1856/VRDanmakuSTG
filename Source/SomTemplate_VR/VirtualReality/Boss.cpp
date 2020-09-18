@@ -11,6 +11,10 @@
 #include "TP_VirtualRealityPawn_Motion.h"
 #include "Projectile.h"
 #include "Math/UnrealMathUtility.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "DMGGameInstance.h"
 #include "UserConstant.h"
 
 // Sets default values
@@ -58,6 +62,13 @@ ABoss::ABoss()
 	Direction_Vector = FVector(0.0f, 0.0f, 0.0f);
 
 	ClearDelayTimer = 0;
+
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundWave> BossBulletShootSoundWave(TEXT("SoundWave'/Game/Sound/BossBulletShoot.BossBulletShoot'"));
+	BossBulletShootSound = BossBulletShootSoundWave.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> BossEndSoundWave(TEXT("SoundWave'/Game/Sound/BossEnd.BossEnd'"));
+	BossEndSound = BossEndSoundWave.Object;
 }
 
 // Called when the game starts or when spawned
@@ -73,6 +84,10 @@ void ABoss::Tick(float DeltaTime)
 	{
 		Body->SetVisibility(false);
 		ClearDelayTimer++;
+
+		if(ClearDelayTimer == 1)
+			UGameplayStatics::PlaySound2D(this, BossEndSound, 0.7f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
+
 		if (ClearDelayTimer > CLEAR_DELAY_TIME)
 			UGameplayStatics::OpenLevel(this, FName(TEXT("GameClear")));
 	}
@@ -100,6 +115,7 @@ void ABoss::Tick(float DeltaTime)
 		{
 			if (Pattern_Timer > 1)
 			{
+				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_1();
 				Pattern_Timer = 0.0;
 			}
@@ -109,6 +125,7 @@ void ABoss::Tick(float DeltaTime)
 		case 2:
 			if (Pattern_Timer > 1)
 			{
+				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_2();
 				Pattern_Timer = 0.0;
 			}
@@ -118,6 +135,7 @@ void ABoss::Tick(float DeltaTime)
 		case 3:
 			if (Pattern_Timer > 1)
 			{
+				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_3();
 				Pattern_Timer = 0.0;
 			}
@@ -127,6 +145,7 @@ void ABoss::Tick(float DeltaTime)
 		case 4:
 			if (Pattern_Timer > 1)
 			{
+				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_4();
 				Pattern_Timer = 0.0;
 			}

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "Sound/SoundConcurrency.h"
 #include <map>
 #include "DMGGameInstance.generated.h"
 
@@ -37,6 +40,29 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetAttackScore();
 
+	// Sound
+	UPROPERTY()
+	class USoundWave* MainMenuSound;
+
+	UPROPERTY()
+	class USoundWave* InGameSound;
+
+	UPROPERTY()
+	class USoundWave* GameClearSound;
+
+	UPROPERTY()
+	class USoundWave* GameOverSound;
+
+	float SoundVolumeRate;
+
+	class AAmbientSound* newSound;
+
+	UAudioComponent* MainMenuSoundComponent;
+
+	USoundCue* MainMenuSoundCue;
+
+
+	// Function
 	UFUNCTION(BlueprintCallable)
 	void SetAttackScore(int score);
 
@@ -51,4 +77,57 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetSurviveScore(int hp, int life);
+
+	// Sound
+	UFUNCTION(BlueprintCallable)
+	void PlayMainMenuSound();
+
+	UFUNCTION(BlueprintCallable)
+	void StopMainMenuSound();
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckMainMenuSoundPlaying();
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeMainMenuSoundState();
+
+	UFUNCTION(BlueprintCallable)
+	int CheckMainMenuSoundState();
+
+
+	UFUNCTION(BlueprintCallable)
+	void PlayInGameSound();
+
+	UFUNCTION(BlueprintCallable)
+	void StopInGameSound();
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckInGameSoundPlaying();
+
+
+	UFUNCTION(BlueprintCallable)
+	void PlayGameClearSound();
+
+	UFUNCTION(BlueprintCallable)
+	void StopGameClearSound();
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckGameClearSoundPlaying();
+
+
+	UFUNCTION(BlueprintCallable)
+	void PlayGameOverSound();
+
+	UFUNCTION(BlueprintCallable)
+	void StopGameOverSound();
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckGameOverSoundPlaying();
+
+
+	UFUNCTION(BlueprintCallable)
+	float GetSoundVolumeRate();
+
+	UFUNCTION(BlueprintCallable)
+	void SetSoundVolumeRate(float value);
 };

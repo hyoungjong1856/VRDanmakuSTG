@@ -29,6 +29,12 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "TP_VirtualRealityPawn_Motion.h"
 #include "UserConstant.h"
+#include "Sound/SoundCue.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
+#include "Components/AudioComponent.h"
+#include "DMGGameInstance.h"
+#include "ConstructorHelpers.h"
 
 // Sets default values
 ATP_MotionController::ATP_MotionController()
@@ -127,9 +133,29 @@ ATP_MotionController::ATP_MotionController()
 	{
 		Sword->SetSkeletalMesh(SM_Sword.Object);
 	}
-		
 
-	// Weapon //
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundWave> SwordSoundWave(TEXT("SoundWave'/Game/Sound/Sword.Sword'"));
+	
+	SwordSound = SwordSoundWave.Object;
+
+	/*
+	static ConstructorHelpers::FObjectFinder<USoundWave> BG2(TEXT("SoundWave'/Game/Sound/Gun3.Gun3'"));
+	BGCue = Cast<UObject>(BG);
+	
+	Cast<UObject>(Sword);
+
+	Sword_AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("SwordAttack"));
+	Sword_AudioComp->bAutoActivate = false;
+	Sword_AudioComp->AttachTo(HandMesh);
+
+	
+	if (BG2.Succeeded())
+	{
+		BGCue = Cast<USoundCue>(BG2.Object);
+	}*/
+	
+	// Sound //
 
 	ArcDirection->SetupAttachment(HandMesh);
 	ArcDirection->SetRelativeLocation(FVector(14.175764f, 0.859525f, -4.318897f));
@@ -245,6 +271,8 @@ ATP_MotionController::ATP_MotionController()
 	TeleportRotation = FRotator(0.0f, 0.0f, 0.0f);
 	TeleportLaunchVelocity = 900.0f;
 	InitialControllerRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	
 }
 
 void ATP_MotionController::OnConstruction(const FTransform & Transform)
@@ -286,6 +314,13 @@ void ATP_MotionController::BeginPlay()
 	{
 		Player = Cast<ATP_VirtualRealityPawn_Motion>(FoundActors[i]);
 	}
+
+	// Sound
+	/*
+	if (Sword_AudioComp->IsValidLowLevelFast())
+	{
+		Sword_AudioComp->SetSound(BGCue);
+	}*/
 }
 
 // Called every frame
@@ -752,12 +787,19 @@ void ATP_MotionController::Hide_Sword(bool visibility)
 void ATP_MotionController::SNB_OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Sword_Attack_Timer++;
+	//Sword_AudioComp->Play();
+
 	if ((Sword_Attack_Timer > PLAYER_SWORD_ATTACK_DELAY) && (OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor->GetClass()->GetName().Equals(TEXT("Boss"))))
 	{
-		Cast<ABoss>(OtherActor)->SetBossCurrentHP(Cast<ABoss>(OtherActor)->GetBossCurrentHP() - Sword_Damage);
-		Player->SetScore(Player->GetScore() + (Sword_Damage * SWORD_SCORE_RATE));
-		//UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHP());
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Attack!"), true, FVector2D(5.0f, 5.0f));
-		Sword_Attack_Timer = 0;
+		if (Player->GetWeaponMode() == static_cast<bool>(Weapon_Mode::SWORD))
+		{
+			Cast<ABoss>(OtherActor)->SetBossCurrentHP(Cast<ABoss>(OtherActor)->GetBossCurrentHP() - Sword_Damage);
+			Player->SetScore(Player->GetScore() + (Sword_Damage * SWORD_SCORE_RATE));
+			//UE_LOG(LogClass, Warning, TEXT("Boss HP : %d"), Cast<ABoss>(OtherActor)->GetBossCurrentHP());
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Attack!"), true, FVector2D(5.0f, 5.0f));
+			Sword_Attack_Timer = 0;
+			//Sword_AudioComp->Play();
+			UGameplayStatics::PlaySound2D(this, SwordSound, 0.5f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
+		}
 	}
 }

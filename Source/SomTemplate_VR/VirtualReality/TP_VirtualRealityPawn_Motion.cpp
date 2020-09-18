@@ -21,6 +21,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "DMGGameInstance.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
 #include "ConstructorHelpers.h"
 
 // Sets default values
@@ -94,6 +96,14 @@ ATP_VirtualRealityPawn_Motion::ATP_VirtualRealityPawn_Motion()
 
 	IsImortal = false;
 	Imortal_Timer = 0;
+
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundWave> PlayerShootingSoundWave(TEXT("SoundWave'/Game/Sound/Gun2.Gun2'"));
+	PlayerShootingSound = PlayerShootingSoundWave.Object;
+
+	PlayerShootingSound->GetPrecacheState();
+
+	IsInGameSoundOn = false;
 }
 
 // Called when the game starts or when spawned
@@ -157,6 +167,12 @@ void ATP_VirtualRealityPawn_Motion::BeginPlay()
 void ATP_VirtualRealityPawn_Motion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (IsInGameSoundOn == false)
+	{
+		IsInGameSoundOn = true;
+		Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->PlayInGameSound();
+	}
 	
 	if (Time_Update_counter == TIME_UPDATE_INTERVAL)
 	{
@@ -425,6 +441,10 @@ void ATP_VirtualRealityPawn_Motion::Fire()
 
 					Projectile->FireInDirection(LaunchDirection);
 					//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("%f %f %f"), LaunchDirection.X, LaunchDirection.Y, LaunchDirection.Z));
+
+					// Sound
+					UGameplayStatics::PlaySound2D(this, PlayerShootingSound, 
+						0.05f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				}
 			}
 		}
@@ -528,6 +548,11 @@ void ATP_VirtualRealityPawn_Motion::SetScore(int score)
 int ATP_VirtualRealityPawn_Motion::GetScore()
 {
 	return Score;
+}
+
+bool ATP_VirtualRealityPawn_Motion::GetWeaponMode()
+{
+	return WeaponMode;
 }
 
 bool ATP_VirtualRealityPawn_Motion::GetIsImortal()

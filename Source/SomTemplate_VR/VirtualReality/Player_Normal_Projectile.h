@@ -22,6 +22,10 @@ private:
 	ATP_VirtualRealityPawn_Motion* Player;
 
 	class UParticleSystemComponent* PlayerProjectileParticle;
+
+	// Sound
+	UPROPERTY()
+	class USoundWave* PlayerBulletCollisionSound;
 	
 public:	
 	// Sets default values for this actor's properties

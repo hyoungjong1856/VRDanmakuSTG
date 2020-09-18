@@ -52,7 +52,7 @@ enum class Player_Direction
 const int PLAYER_PROJECTILE_LIFETIME = 120;
 
 // Player Sword Constant
-const int PLAYER_SWORD_ATTACK_DELAY = 100;
+const int PLAYER_SWORD_ATTACK_DELAY = 500;
 
 
 // Boss Pattern Constant

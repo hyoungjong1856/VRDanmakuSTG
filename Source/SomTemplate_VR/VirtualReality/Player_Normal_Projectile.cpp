@@ -4,8 +4,11 @@
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "DMGGameInstance.h"
 #include "UserConstant.h"
 
 // Sets default values
@@ -40,6 +43,10 @@ APlayer_Normal_Projectile::APlayer_Normal_Projectile()
 
 	LifeTime_Counter = 0;
 	Damage = 200;
+
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundWave> PlayerBulletCollisionSoundWave(TEXT("SoundWave'/Game/Sound/PlayerBulletCollision.PlayerBulletCollision'"));
+	PlayerBulletCollisionSound = PlayerBulletCollisionSoundWave.Object;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +94,8 @@ void APlayer_Normal_Projectile::OnOverlapBegin(UPrimitiveComponent* OverlappedCo
 		
 		Player->SetScore(Player->GetScore() + (Damage * GUN_SCORE_RATE));
 		//UE_LOG(LogClass, Warning, TEXT("score : %d"), Player->GetScore());
+
+		UGameplayStatics::PlaySound2D(this, PlayerBulletCollisionSound, 0.3f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 
 		Destroy();
 		

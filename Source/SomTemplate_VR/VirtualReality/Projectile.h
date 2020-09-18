@@ -51,6 +51,10 @@ public:
 
 	class UParticleSystemComponent* ProjectileParticle;
 
+	// Sound
+	UPROPERTY()
+	class USoundWave* PlayerIsShotSound;
+
 	// declare overlap begin function
 	UFUNCTION()
 	virtual void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

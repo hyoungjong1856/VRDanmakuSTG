@@ -87,8 +87,14 @@ private:
 	int Player_CurrentLife;
 	int Player_MaxLife;
 
+	bool IsInGameSoundOn;
+
 	// Ranking
 	int Score;
+
+	// Sound
+	UPROPERTY()
+	class USoundWave* PlayerShootingSound;
 
 protected:
 	
@@ -153,6 +159,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int GetScore();
+
+	bool GetWeaponMode();
 
 	bool GetIsImortal();
 

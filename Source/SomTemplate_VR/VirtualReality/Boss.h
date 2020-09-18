@@ -129,5 +129,12 @@ public:
 
 	FVector Random_Vector(int random_value);
 
+	// Sound
+	UPROPERTY()
+	class USoundWave* BossBulletShootSound;
+
+	UPROPERTY()
+	class USoundWave* BossEndSound;
+
 	void Test();
 };

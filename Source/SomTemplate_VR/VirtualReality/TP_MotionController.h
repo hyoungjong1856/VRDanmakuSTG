@@ -57,7 +57,8 @@ class SOMTEMPLATE_VR_API ATP_MotionController : public AActor
 	class UStaticMeshComponent* RoomScaleMesh;				  
 															  
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRTemplate|Components", meta = (AllowPrivateAccess = "true"))
-	class USteamVRChaperoneComponent* SteamVRChaperone;	
+	class USteamVRChaperoneComponent* SteamVRChaperone;
+
 	
 public:	
 	// Sets default values for this actor's properties
@@ -177,6 +178,19 @@ protected:
 public:		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRTemplate|Variables")
 	EControllerHand Hand;
+
+	// Sound
+	UPROPERTY()
+	class USoundWave* SwordSound;
+
+	/*
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Audio Component")
+	class USoundCue* BGCue;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Audio Component")
+	class UAudioComponent* Sword_AudioComp;*/
+
+	
 
 	FVector GetMuzzleLocation();
 
