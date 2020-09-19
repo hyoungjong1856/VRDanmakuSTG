@@ -3,6 +3,7 @@
 
 #include "DMGGameInstance.h"
 #include "Engine/World.h"
+#include "CustomDataTables.h"
 #include "AudioDevice.h"
 #include "Sound/AmbientSound.h"
 #include "Sound/SoundWave.h"
@@ -46,6 +47,15 @@ UDMGGameInstance::UDMGGameInstance(const FObjectInitializer& ObjectInitializer) 
 	SoundVolumeRate = 0.5f;
 	
 	PlayerName = "";
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataTable(TEXT("DataTable'/Game/RankingData/RankingData.RankingData'"));
+	if (DataTable.Succeeded())
+	{
+		RankingDataTable = DataTable.Object;
+	}
+
+	// CheatMode
+	IsCheatMode = false;
 }
 
 void UDMGGameInstance::Init()
@@ -243,6 +253,38 @@ float UDMGGameInstance::GetSoundVolumeRate()
 void UDMGGameInstance::SetSoundVolumeRate(float value)
 {
 	SoundVolumeRate = value;
+}
+
+void UDMGGameInstance::ReadDataTable()
+{
+	if (RankingDataTable != nullptr)
+	{
+		for (int32 i = 0; i < RankingDataTable->GetRowNames().Num(); i++)
+		{
+			FString ContextString;
+			FRankingDataTable* RankingData = RankingDataTable->FindRow<FRankingDataTable>(RankingDataTable->GetRowNames()[i], ContextString);
+			UE_LOG(LogTemp, Log, TEXT("PlayerName: %s, Score: %d"), *(*RankingData).PlayerName, (*RankingData).TotalScore);
+		}
+	}
+}
+
+bool UDMGGameInstance::IsCheatModeOn()
+{
+	return IsCheatMode;
+}
+
+void UDMGGameInstance::ChangeCheatMode()
+{
+	if (IsCheatMode == true)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Cheat Mode Off")));
+		IsCheatMode = false;
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Cheat Mode On")));
+		IsCheatMode = true;
+	}
 }
 
 

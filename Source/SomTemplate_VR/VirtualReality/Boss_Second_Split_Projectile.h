@@ -7,10 +7,17 @@
 #include "Projectile.h"
 #include "Boss_Second_Split_Projectile.generated.h"
 
+class ABoss;
+
 UCLASS()
 class SOMTEMPLATE_VR_API ABoss_Second_Split_Projectile : public AProjectile
 {
 	GENERATED_BODY()
+
+private:
+
+	TArray<AActor*> FoundActors;
+	ABoss* BossClass;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -24,4 +31,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Check_Destroy() override;
 };

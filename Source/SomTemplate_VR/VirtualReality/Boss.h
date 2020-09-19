@@ -55,7 +55,6 @@ private:
 
 	std::vector<AProjectile*> Pattern_4_First_Projectile_Vector;
 	std::vector<AProjectile*> Pattern_4_Second_Projectile_Vector;
-	std::vector<AProjectile*> Pattern_4_Third_Projectile_Vector;
 
 
 	// Boss Movement variable
@@ -114,6 +113,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetBossCurrentHP(int hp);
+
+	std::vector<AProjectile*> GetPattern_4_First_Projectile_Vector();
+	std::vector<AProjectile*> GetPattern_4_Second_Projectile_Vector();
 	
 	void Pattern_1();
 	void Pattern_2();

@@ -42,7 +42,7 @@ APlayer_Normal_Projectile::APlayer_Normal_Projectile()
 	}
 
 	LifeTime_Counter = 0;
-	Damage = 200;
+	Damage = 20;
 
 	// Sound
 	static ConstructorHelpers::FObjectFinder<USoundWave> PlayerBulletCollisionSoundWave(TEXT("SoundWave'/Game/Sound/PlayerBulletCollision.PlayerBulletCollision'"));
@@ -72,6 +72,11 @@ void APlayer_Normal_Projectile::BeginPlay()
 void APlayer_Normal_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->IsCheatModeOn() == true)
+		Damage = 200;
+	else
+		Damage = 20;
 	
 	Check_Destroy();
 }

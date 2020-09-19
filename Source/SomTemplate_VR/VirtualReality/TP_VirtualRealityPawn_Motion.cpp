@@ -247,9 +247,11 @@ void ATP_VirtualRealityPawn_Motion::SetupPlayerInputComponent(UInputComponent* P
 	InputComponent->BindAction("AttackModeChange", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Press);
 	InputComponent->BindAction("AttackModeChange", IE_Released, this, &ATP_VirtualRealityPawn_Motion::Attack_Mode_Change_Release);
 
+	// Cheat Mode Input
+	InputComponent->BindAction("CheatMode", IE_Pressed, Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())), &UDMGGameInstance::ChangeCheatMode);
+
 	// SelfDamage
 	InputComponent->BindAction("SelfDamage", IE_Pressed, this, &ATP_VirtualRealityPawn_Motion::SelfDamage);
-
 }
 
 void ATP_VirtualRealityPawn_Motion::OnResetVR()
@@ -562,7 +564,10 @@ bool ATP_VirtualRealityPawn_Motion::GetIsImortal()
 
 void ATP_VirtualRealityPawn_Motion::SelfDamage()
 {
-	Player_CurrentHP -= 5;
+	if (Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->IsCheatModeOn() == true)
+	{
+		Player_CurrentHP -= 5;
+	}
 }
 
 void ATP_VirtualRealityPawn_Motion::Test()

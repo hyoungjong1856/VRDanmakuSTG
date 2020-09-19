@@ -6,6 +6,8 @@
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "ConstructorHelpers.h"
+#include "Boss.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABoss_Second_Split_Projectile::ABoss_Second_Split_Projectile()
@@ -23,6 +25,13 @@ ABoss_Second_Split_Projectile::ABoss_Second_Split_Projectile()
 		ProjectileParticle->SetTemplate(ParticleAsset.Object);
 		ProjectileParticle->SetGenerateOverlapEvents(false);
 	}
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABoss::StaticClass(), FoundActors);
+
+	for (int i = 0; i < FoundActors.Num(); i++)
+	{
+		BossClass = Cast<ABoss>(FoundActors[i]);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -39,5 +48,15 @@ void ABoss_Second_Split_Projectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Check_Destroy();
+}
+
+void ABoss_Second_Split_Projectile::Check_Destroy()
+{
+	LifeTime_Counter++;
+	if (LifeTime_Counter > 500)
+	{
+		//BossClass->GetPattern_4_Second_Projectile_Vector().pop_back();
+		Destroy();
+	}
 }
 

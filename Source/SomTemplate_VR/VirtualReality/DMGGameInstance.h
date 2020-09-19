@@ -64,6 +64,11 @@ public:
 	// Player Name
 	FString PlayerName;
 
+	// Data Table
+	class UDataTable* RankingDataTable;
+
+	// CheatMode
+	bool IsCheatMode;
 
 	// Function
 
@@ -136,4 +141,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetSoundVolumeRate(float value);
+
+	UFUNCTION(BlueprintCallable)
+	void ReadDataTable();
+
+	// Check CheatMode
+	bool IsCheatModeOn();
+
+	void ChangeCheatMode();
 };

@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DMGGameInstance.h"
 #include "UserConstant.h"
+#include "Misc/FileHelper.h"
 
 // Sets default values
 ABoss::ABoss()
@@ -83,6 +84,7 @@ void ABoss::Tick(float DeltaTime)
 	if (Boss_CurrentHP <= 0)
 	{
 		Body->SetVisibility(false);
+		Body->SetGenerateOverlapEvents(false);
 		ClearDelayTimer++;
 
 		if(ClearDelayTimer == 1)
@@ -113,7 +115,7 @@ void ABoss::Tick(float DeltaTime)
 		{
 		case 1:
 		{
-			if (Pattern_Timer > 1)
+			if (Pattern_Timer > 0.5)
 			{
 				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_1();
@@ -143,7 +145,7 @@ void ABoss::Tick(float DeltaTime)
 			break;
 
 		case 4:
-			if (Pattern_Timer > 1)
+			if (Pattern_Timer > 0.6)
 			{
 				UGameplayStatics::PlaySound2D(this, BossBulletShootSound, 0.4f * Cast<UDMGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->GetSoundVolumeRate());
 				Pattern_4();
@@ -171,6 +173,16 @@ int ABoss::GetBossCurrentHP()
 void ABoss::SetBossCurrentHP(int hp)
 {
 	Boss_CurrentHP = hp;
+}
+
+std::vector<AProjectile*> ABoss::GetPattern_4_First_Projectile_Vector()
+{
+	return Pattern_4_First_Projectile_Vector;
+}
+
+std::vector<AProjectile*> ABoss::GetPattern_4_Second_Projectile_Vector()
+{
+	return Pattern_4_Second_Projectile_Vector;
 }
 
 void ABoss::Pattern_1()
@@ -344,7 +356,7 @@ void ABoss::Pattern_3()
 void ABoss::Pattern_4()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_4 start"));
-	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_4 %f, %f, %f"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("Boss Pattern_4 %d %d"), Pattern_4_First_Projectile_Vector.size(), Pattern_4_Second_Projectile_Vector.size());
 
 	FActorSpawnParameters SpawnParams;
 
@@ -412,7 +424,6 @@ void ABoss::Pattern_4()
 
 					if (Third_Projectile[i])
 					{
-						Pattern_4_Third_Projectile_Vector.push_back(Third_Projectile[i]);
 						FVector LaunchDirection = FVector(0.0f, 1.0f, 0.0f);
 						if (i % 2)
 							LaunchDirection = FVector(0.0f, -1.0f, 0.0f);
@@ -424,6 +435,9 @@ void ABoss::Pattern_4()
 
 		Pattern_4_Windmill_Rotation += 10;
 	}
+
+	for (int i = 0; i < Pattern_4_Second_Projectile_Vector.size(); i++)
+		Pattern_4_Second_Projectile_Vector.pop_back();
 }
 
 void ABoss::Pattern_1_Movement()
